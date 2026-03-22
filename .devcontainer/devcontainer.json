@@ -1,0 +1,21 @@
+{
+  "name": "Python Development Environment",
+  "image": "mcr.microsoft.com/vscode/devcontainers/python:3.11",
+  "extensions": [
+    "ms-python.python",
+    "formulahendry.code-runner",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "ms-python.autopep8",
+    "batisteo.vscode-django",
+    "dbaeumer.vscode-eslint",
+    "VisualStudioExptTeam.intellicode-api-usage-examples",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "donjayamanne.python-environment-manager",
+  ],
+  "settings": {
+    "workbench.colorTheme": "Dark Modern"  // Set to the custom theme name
+  },
+  "postCreateCommand": ""
+}
+
