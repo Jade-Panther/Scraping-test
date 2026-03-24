@@ -1,0 +1,25 @@
+name: Run Python Code
+
+on: 
+  workflow_dispatch:
+
+env: 
+  DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+  USER_ID: ${{ secrets.USER_ID }}
+  CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+
+jobs:
+  run-python:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with: 
+          python-version: '3.11'
+
+      - name: Run Python Code
+        run: 
+          python3 main.py
