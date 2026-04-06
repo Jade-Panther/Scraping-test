@@ -14,7 +14,7 @@
     "donjayamanne.python-environment-manager",
   ],
   "settings": {
-    "workbench.colorTheme": "Dark Modern"  // Set to the custom theme name
+    "workbench.colorTheme": "Dark Modern"  
   },
   "postCreateCommand": ""
 }

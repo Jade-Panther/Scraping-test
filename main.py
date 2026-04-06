@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
+
 USER_ID = int(os.getenv("USER_ID"))
 
 print("TOKEN:", TOKEN)

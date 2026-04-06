@@ -20,6 +20,12 @@ jobs:
         with: 
           python-version: '3.11'
 
+      - name: Debug env
+        run: |
+          echo "DISCORD_TOKEN=${DISCORD_TOKEN}"
+          echo "USER_ID=${USER_ID}"
+          echo "CHANNEL_ID=${CHANNEL_ID}"
+
       - name: Run Python Code
         run: 
           python3 main.py
