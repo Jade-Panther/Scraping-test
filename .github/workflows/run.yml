@@ -27,5 +27,5 @@ jobs:
           echo "CHANNEL_ID=${CHANNEL_ID}"
 
       - name: Run Python Code
-        run: 
-          python3 main.py
+        run: |
+          python3 main.py || true

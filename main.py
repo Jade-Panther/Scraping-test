@@ -10,6 +10,9 @@ USER_ID = int(os.getenv("USER_ID"))
 
 print("TOKEN:", TOKEN)
 print("USER_ID:", USER_ID)
+print("DISCORD_TOKEN:", repr(TOKEN))
+print("USER_ID:", repr(os.getenv("USER_ID")))
+print("CHANNEL_ID:", repr(os.getenv("CHANNEL_ID")))
 
 intents = discord.Intents.default()
 intents.message_content = True
