@@ -21,7 +21,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -U pip
+          pip install discord.py python-dotenv
+
 
       - name: Debug env
         run: |
