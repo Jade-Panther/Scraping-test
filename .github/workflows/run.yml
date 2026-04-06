@@ -20,17 +20,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          pip install discord.py python-dotenv
+      # - name: Install dependencies
+      #   run: |
+      #     python3 -m pip install --upgrade pip
+      #     pip install discord.py python-dotenv
 
-      - name: List installed packages
-        run: python3 -m pip list
+      # - name: List installed packages
+      #   run: python3 -m pip list
 
-      - name: Verify installation
-        run: |
-          pip show discord.py
-          pip show python-dotenv
+      # - name: Verify installation
+      #   run: |
+      #     pip show discord.py
+      #     pip show python-dotenv
 
       
