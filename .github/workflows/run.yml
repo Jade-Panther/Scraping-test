@@ -1,9 +1,9 @@
 name: Run Python Code
 
-on: 
+on:
   workflow_dispatch:
 
-env: 
+env:
   DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
   USER_ID: ${{ secrets.USER_ID }}
   CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
@@ -11,27 +11,25 @@ env:
 jobs:
   run-python:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
-        with: 
+        uses: actions/setup-python@v5
+        with:
           python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install -U pip
+          python3 -m pip install --upgrade pip
           pip install discord.py python-dotenv
 
-
-      - name: Debug env
+      - name: Verify installation
         run: |
-          echo "DISCORD_TOKEN=${DISCORD_TOKEN}"
-          echo "USER_ID=${USER_ID}"
-          echo "CHANNEL_ID=${CHANNEL_ID}"
+          pip show discord.py
+          pip show python-dotenv
 
       - name: Run Python Code
         run: |
-          python3 main.py || true
+          python3 main.py
