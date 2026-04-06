@@ -33,6 +33,4 @@ jobs:
           pip show discord.py
           pip show python-dotenv
 
-      - name: Run Python Code
-        run: |
-          python3 main.py
+      
