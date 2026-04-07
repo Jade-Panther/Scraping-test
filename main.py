@@ -1,35 +1,41 @@
 import discord
 import os
 from dotenv import load_dotenv
+from discord.ext import commands
 
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-
 USER_ID = int(os.getenv("USER_ID"))
 
-print("TOKEN:", TOKEN)
-print("USER_ID:", USER_ID)
-print("DISCORD_TOKEN:", repr(TOKEN))
-print("USER_ID:", repr(os.getenv("USER_ID")))
-print("CHANNEL_ID:", repr(os.getenv("CHANNEL_ID")))
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print(f"Logged in as {self.user}!")
-        user = await self.fetch_user(USER_ID)
-        await user.send("Hello! This is a DM from your bot.")
+bot = commands.Bot(command_prefix="!", intents=intents)
 
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
-        if message.content.lower() == "hi":
-            await message.channel.send(f"Hello {message.author.name}!")
-        if message.content.lower() == "ping":
-            await message.author.send("Pong! (DM)")
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}!")
+    user = await bot.fetch_user(USER_ID)
+    await user.send("Hello! This is a DM from your bot.")
 
-client = MyClient(intents=intents)
-client.run(TOKEN)
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
+
+@bot.command()
+async def hi(ctx):
+    await ctx.send(f"Hello {ctx.author.name}!")
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.content.lower() == "ping":
+        await message.author.send("Pong! (DM)")
+
+    await bot.process_commands(message)
+    
+bot.run(TOKEN)
