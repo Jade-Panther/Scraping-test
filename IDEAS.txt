@@ -1,0 +1,21 @@
+INAT: https://api.inaturalist.org/v2/docs/
+- DM when a rare species is discovered nearby
+- I DM it a photo and it returns CV suggestions
+- Species of the day
+- Guess the animal game
+- Give facts about recently observed organism
+
+
+NASA
+- Space picture of the day
+- Space alerts (meteor showers, solar flares, etc)
+
+WEATHER
+- Current Temp and Forecast
+- Whether is above average
+
+Quanta magazine alerts
+
+When satellites pass overhead: https://www.n2yo.com
+Planes? 
+- https://opensky-network.org/api/states/all?lamin=40.0&lomin=-75.0&lamax=41.0&lomax=-73.0
