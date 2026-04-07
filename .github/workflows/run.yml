@@ -10,6 +10,10 @@ env:
   USER_ID: ${{ secrets.USER_ID }}
   CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 
+concurrency:
+  group: discord-bot
+  cancel-in-progress: true
+
 jobs:
   run-python:
     runs-on: ubuntu-latest
