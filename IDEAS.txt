@@ -1,6 +1,6 @@
 INAT: https://api.inaturalist.org/v2/docs/
 - DM when a rare species is discovered nearby
-- I DM it a photo and it returns CV suggestions
+- I DM it a photo and it returns CV suggestions // Fail
 - Species of the day
 - Guess the animal game
 - Give facts about recently observed organism

@@ -2,6 +2,7 @@ import discord
 import os
 from dotenv import load_dotenv
 from discord.ext import commands
+from suggestion import *
 
 load_dotenv()
 
@@ -37,5 +38,5 @@ async def on_message(message):
         await message.author.send("Pong! (DM)")
 
     await bot.process_commands(message)
-    
+
 bot.run(TOKEN)
