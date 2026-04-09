@@ -1,6 +1,5 @@
 import requests
 from pprint import pprint
-from geopy.distance import distance
 
 def in_area(obs_lat, obs_lon, center_lat, center_lon, radius_km):
     return distance((float(obs_lat), float(obs_lon)), (center_lat, center_lon)).km <= radius_km
