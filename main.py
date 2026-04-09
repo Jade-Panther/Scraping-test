@@ -29,6 +29,22 @@ async def ping(ctx):
 async def hi(ctx):
     await ctx.send(f"Hello {ctx.author.name}!")
 
+@bot.command()
+async def info(ctx):
+    embed = discord.Embed(
+        title="🌟 Bot Info",
+        description="This is a stylized bot message!",
+        color=0x00ff00  
+    )
+    
+    embed.set_image(url="https://static.inaturalist.org/photos/635379170/large.jpg")
+    embed.add_field(name="Field 1", value="Some text", inline=True)
+    embed.add_field(name="Field 2", value="More text", inline=True)
+    embed.set_footer(text="Footer text here")
+    
+    await ctx.send(embed=embed)
+
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
