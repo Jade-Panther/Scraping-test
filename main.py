@@ -65,7 +65,7 @@ async def info(ctx):
         await ctx.send(embed=embed)
 
 @bot.command()
-async def random(ctx):
+async def randomSpecies(ctx):
     page = random.randInt(0, 200)
 
     results = inat.get_taxons({
