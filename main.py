@@ -36,6 +36,8 @@ async def hi(ctx):
 async def info(ctx):
     rare_sightings = inat.get_observations(lat, lng, radius)[:3]
 
+    print(rare_sightings)
+
     embeds = []
     for obs in rare_sightings:
         print('INSIDE FOR OBS')
@@ -51,7 +53,7 @@ async def info(ctx):
 
         embeds.append(embed)
     
-    if len(embeds):
+    if len(embeds) == 0:
        await ctx.send('No rare species discovered')
     
     await ctx.send(embed=embeds[:5])
