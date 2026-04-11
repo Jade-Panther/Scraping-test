@@ -46,7 +46,7 @@ async def info(ctx):
         )
         
         embed.set_image(url=obs.get('photos')[0].get('url'))
-        embed.add_field(name=obs.species_guess, value="Some text", inline=True)
+        embed.add_field(name=obs.get('species_guess'), value="Some text", inline=True)
         #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
