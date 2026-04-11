@@ -11,7 +11,7 @@ USER_ID = int(os.getenv("USER_ID"))
 
 inat = INatClient()
 lat, lng = 39.1928853, -76.7241371
-radius = 300
+radius = 100
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -34,7 +34,7 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx):
-    rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))
+    rare_sightings = inat.get_observations(lat, lng, radius)
 
     embeds = []
     for obs in rare_sightings:
@@ -49,6 +49,9 @@ async def info(ctx):
         #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
+    
+    if embeds.length == 0:
+       await ctx.send('No rare species discovered')
     
     await ctx.send(embed=embeds[:5])
 
