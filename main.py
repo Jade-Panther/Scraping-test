@@ -44,9 +44,9 @@ async def info(ctx):
             color=0x00ff00  
         )
         
-        embed.set_image(url="https://static.inaturalist.org/photos/635379170/large.jpg")
-        embed.add_field(name='', value="Some text", inline=True)
-        embed.set_footer(text="Footer text here")
+        embed.set_image(url=obs.get('photos')[0].get('url'))
+        embed.add_field(name=obs.species_guess, value="Some text", inline=True)
+        #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
     

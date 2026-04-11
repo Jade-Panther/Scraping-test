@@ -34,8 +34,6 @@ class INatClient:
     def __init__(self):
         pass
 
-    
-
     def get_observations(self, lat, lon, radius_km, per_page=30, quality_grade='research'):
         url = self.BASE_URL + '/observations'
         params = {
@@ -64,7 +62,6 @@ class INatClient:
         r.raise_for_status()
         return r.json()['results'][0]
 
-    
     def filter_rare(self, observations):
         rare_obs = []
 
