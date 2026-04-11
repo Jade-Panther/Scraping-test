@@ -36,7 +36,7 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx):
-    rare_sightings = inat.get_observations(lat, lng, radius)[:3]
+    rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))[:6]
 
     print(rare_sightings)
 
@@ -93,7 +93,7 @@ async def randomSpecies(ctx):
     embed = discord.Embed(
         title=name,
         description=summary[:2000],  
-        color=0x00ff00
+        color=0x7D56E8
     )
 
     embed.add_field(name="Scientific name", value=scientific, inline=False)
@@ -102,6 +102,10 @@ async def randomSpecies(ctx):
         embed.set_image(url=image_url)
 
     await ctx.send(embed=embed)
+
+@bot.command()
+async def game(ctx):
+    pass
 
 @bot.event
 async def on_message(message):
