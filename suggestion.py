@@ -1,8 +1,7 @@
 import requests
 from pprint import pprint
 
-def in_area(obs_lat, obs_lon, center_lat, center_lon, radius_km):
-    return distance((float(obs_lat), float(obs_lon)), (center_lat, center_lon)).km <= radius_km
+
 
 def place_matches(status_place, target_places):
     """
@@ -82,15 +81,15 @@ class INatClient:
 
         return rare_obs
 
-inat = INatClient()
+# inat = INatClient()
 
-lat, lng = 39.1928853, -76.7241371
-radius = 300
+# lat, lng = 39.1928853, -76.7241371
+# radius = 300
 
 
-rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))
+#rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))
 #rare_sightings = inat.get_observations(lat, lng, 50)
 
-pprint(rare_sightings)
+#pprint(rare_sightings)
 #pprint(inat.get_taxon(12727)['conservation_statuses'])
 #pprint(inat.get_taxon(130793)['conservation_status']['status'])

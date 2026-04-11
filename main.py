@@ -34,10 +34,11 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx):
-    rare_sightings = inat.get_observations(lat, lng, radius)
+    rare_sightings = inat.get_observations(lat, lng, radius)[:1]
 
     embeds = []
     for obs in rare_sightings:
+        print('INSIDE FOR OBS')
         embed = discord.Embed(
             title='Naturalist Alert',
             description='A rare species was discovered nearby!',
