@@ -64,7 +64,7 @@ async def info(ctx):
     for embed in embeds[:5]:
         await ctx.send(embed=embed)
 
-@bot.command
+@bot.command()
 async def random(ctx):
     page = random.randInt(0, 200)
 
