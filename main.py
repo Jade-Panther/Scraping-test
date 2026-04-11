@@ -66,7 +66,7 @@ async def info(ctx):
 
 @bot.command()
 async def randomSpecies(ctx):
-    page = random.randInt(0, 200)
+    page = random.randint(0, 200)
 
     results = inat.get_taxons({
         "rank": "species",
@@ -85,18 +85,23 @@ async def randomSpecies(ctx):
     summary = species.get('wikipedia_summary', 'No description available.')
 
     photo = species.get('default_photo', {})
-    image_url = photo.get('url').replace('square', 'original')
+    image_url = photo.get('url')
+
+    if image_url:
+        image_url = image_url.replace('square', 'large')
 
     embed = discord.Embed(
-        title='Naturalist Alert',
-        description='Random Species',
-        color=0x00ff00  
+        title=name,
+        description=summary[:2000],  
+        color=0x00ff00
     )
-    
-    embed.set_image(url=image_url)
 
-    embed.add_field(name=name, value=scientific, inline=True)
-    embed.set_footer(text=summary)
+    embed.add_field(name="Scientific name", value=scientific, inline=False)
+
+    if image_url:
+        embed.set_image(url=image_url)
+
+    await ctx.send(embed=embed)
 
 @bot.event
 async def on_message(message):
