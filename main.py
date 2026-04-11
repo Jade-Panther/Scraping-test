@@ -9,6 +9,9 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 USER_ID = int(os.getenv("USER_ID"))
 
+inat = INatClient()
+lat, lng = 39.1928853, -76.7241371
+radius = 300
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -31,18 +34,23 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx):
-    embed = discord.Embed(
-        title="🌟 Bot Info",
-        description="This is a stylized bot message!",
-        color=0x00ff00  
-    )
+    rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))
+
+    embeds = []
+    for obs in rare_sightings:
+        embed = discord.Embed(
+            title='Naturalist Alert',
+            description='A rare species was discovered nearby!',
+            color=0x00ff00  
+        )
+        
+        embed.set_image(url="https://static.inaturalist.org/photos/635379170/large.jpg")
+        embed.add_field(name='', value="Some text", inline=True)
+        embed.set_footer(text="Footer text here")
+
+        embeds.append(embed)
     
-    embed.set_image(url="https://static.inaturalist.org/photos/635379170/large.jpg")
-    embed.add_field(name="Field 1", value="Some text", inline=True)
-    embed.add_field(name="Field 2", value="More text", inline=True)
-    embed.set_footer(text="Footer text here")
-    
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embeds[:5])
 
 
 @bot.event
