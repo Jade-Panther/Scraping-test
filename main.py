@@ -2,6 +2,7 @@ import discord
 import os
 from dotenv import load_dotenv
 from discord.ext import commands
+import random
 from suggestion import *
 
 load_dotenv()
@@ -17,6 +18,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
 
 @bot.event
 async def on_ready():
@@ -49,9 +51,9 @@ async def info(ctx):
         
         photos = obs.get('photos')
         if photos and len(photos) > 0:
-            embed.set_image(url=photos[0].get('url'))
+            embed.set_image(url=photos[0].get('url').replace('large', 'original'))
 
-        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations'+str(obs.id), inline=True)
+        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations'+str(obs.get('id')), inline=True)
         #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
@@ -62,6 +64,39 @@ async def info(ctx):
     for embed in embeds[:5]:
         await ctx.send(embed=embed)
 
+@bot.command
+async def random(ctx):
+    page = random.randInt(0, 200)
+
+    results = inat.get_taxons({
+        "rank": "species",
+        "page": page,
+        "per_page": 30
+    })
+
+    if not results:
+        await ctx.send("Couldn't find any species.")
+        return
+    
+    species = random.choice(results)
+
+    name = species.get('preferred_common_name', 'Unknown')
+    scientific = species.get('name', 'Unknown')
+    summary = species.get('wikipedia_summary', 'No description available.')
+
+    photo = species.get('default_photo', {})
+    image_url = photo.get('url').replace('square', 'original')
+
+    embed = discord.Embed(
+        title='Naturalist Alert',
+        description='Random Species',
+        color=0x00ff00  
+    )
+    
+    embed.set_image(url=image_url)
+
+    embed.add_field(name=name, value=scientific, inline=True)
+    embed.set_footer(text=summary)
 
 @bot.event
 async def on_message(message):

@@ -1,17 +1,7 @@
 import requests
+import random
 from pprint import pprint
 
-
-
-def place_matches(status_place, target_places):
-    """
-    status_place: dict or None
-    target_places: list of strings to match, e.g., ['United States', 'Eastern US']
-    """
-    if not status_place:
-        return True  # global
-    place_name = status_place.get('name', '').lower()
-    return any(tp.lower() in place_name for tp in target_places)
 
 class INatClient:
     BASE_URL = 'https://api.inaturalist.org/v1'
@@ -52,14 +42,19 @@ class INatClient:
         r.raise_for_status()
         return r.json()['results']
     
-    def get_taxon(self, id):
+    def get_taxon_by_id(self, id):
         url = f'https://api.inaturalist.org/v1/taxa/{id}'
         params = {
-            'fields': 'id,name,preferred_common_name,conservation_statuses'
+            'fields': 'all'
         }
         r = requests.get(url, params=params)
         r.raise_for_status()
         return r.json()['results'][0]
+    
+    def get_taxons(self, params):
+        url = self.BASE_URL + '/taxa'
+        r = requests.get(url, params=params)
+        return r.json()['results']
 
     def filter_rare(self, observations):
         rare_obs = []
@@ -69,15 +64,17 @@ class INatClient:
             if not taxon:
                 continue
             
-            data = self.get_taxon(taxon.get('id'))
+            data = self.get_taxon_by_id(taxon.get('id'))
             for status in data.get('conservation_statuses', []):
                 code = status.get('status')
                 if not code:
                     continue
 
                 codes = code.split(',')
-                if any(c in self.RARE_CODES for c in codes):
+                if any(c in self.RARE_CODES for c in codes) and obs['taxon']['observations_count'] < 20000:
                     rare_obs.append(obs)
+                    break
+
 
         return rare_obs
 
