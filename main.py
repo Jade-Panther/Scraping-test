@@ -47,7 +47,10 @@ async def info(ctx):
             color=0x00ff00  
         )
         
-        embed.set_image(url=obs.get('photos')[0].get('url'))
+        photos = obs.get('photos')
+        if photos and len(photos) > 0:
+            embed.set_image(url=photos[0].get('url'))
+            
         embed.add_field(name=obs.get('species_guess'), value="Some text", inline=True)
         #embed.set_footer(text="Footer text here")
 
@@ -56,7 +59,7 @@ async def info(ctx):
     if len(embeds) == 0:
        await ctx.send('No rare species discovered')
     
-    await ctx.send(embed=embeds[:5])
+    await ctx.send(embeds=embeds[:5])
 
 
 @bot.event
