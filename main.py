@@ -34,7 +34,7 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx):
-    rare_sightings = inat.get_observations(lat, lng, radius)[:1]
+    rare_sightings = inat.get_observations(lat, lng, radius)[:3]
 
     embeds = []
     for obs in rare_sightings:
@@ -51,7 +51,7 @@ async def info(ctx):
 
         embeds.append(embed)
     
-    if embeds.length == 0:
+    if len(embeds):
        await ctx.send('No rare species discovered')
     
     await ctx.send(embed=embeds[:5])
