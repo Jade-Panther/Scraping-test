@@ -50,8 +50,8 @@ async def info(ctx):
         photos = obs.get('photos')
         if photos and len(photos) > 0:
             embed.set_image(url=photos[0].get('url'))
-            
-        embed.add_field(name=obs.get('species_guess'), value="Some text", inline=True)
+
+        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations'+str(obs.id), inline=True)
         #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
@@ -59,7 +59,8 @@ async def info(ctx):
     if len(embeds) == 0:
        await ctx.send('No rare species discovered')
     
-    await ctx.send(embeds=embeds[:5])
+    for embed in embeds[:5]:
+        await ctx.send(embed=embed)
 
 
 @bot.event
