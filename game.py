@@ -164,7 +164,7 @@ class NatGame(commands.Cog):
                 # Add the question
                 answer = random.randint(0, 3)
                 session.questions.append({
-                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{choices[answer].get('default_photo').get('id')}/original.jpg",
+                    'img_url': f"{choices[answer].get('default_photo').get('medium_url')}",
                     'choices': [f"{choice['preferred_common_name'] or '-'} ({choice['name']})" for choice in choices],
                     'answer': answer,
                     'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
