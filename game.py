@@ -43,7 +43,7 @@ class NatGame(commands.Cog):
         )
 
         for i, taxon in enumerate(results):
-            embed.description += f"{i+1}. {taxon['matched_term']} [Link]({taxon['url']})"
+            embed.description += f"{i+1}. {taxon['matched_term']} [Link](www.inaturalist.org/taxa/{taxon.get('id')})"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
 
