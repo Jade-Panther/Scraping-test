@@ -10,9 +10,9 @@ QUIZ IDEAS:
 Guess the species
 - Show image
 - User picks correct name
-- Easy: 4 choices
-
-
+- Easy: Broad taxon (choices in order, family)
+- Medium: Specific taxon (choices in genus)
+- Hard: Specific taxon (choices in genus), scientific name only
 
 NASA
 - Space picture of the day

@@ -63,7 +63,10 @@ class NatGame(commands.Cog):
                 session.type = mode
 
                 await self.init_game(session)
-                await ctx.send('Use !play to begin!')
+                await interaction.response.send_message(
+                    f"Use !play to begin!",
+                    ephemeral=True
+                )
 
             btn.callback = callback
             view.add_item(btn)
@@ -101,9 +104,14 @@ class NatGame(commands.Cog):
 
                 if choice == q['choices'][q['answer']]:
                     session.score += 1
-                    await self.send_correct(ctx, q)
-                else:
-                    await self.send_wrong(ctx, q)
+                #     await self.send_correct(interaction, q)
+                # else:
+                #     await self.send_wrong(interaction, q)
+
+                await interaction.response.send_message(
+                    "Correct!" if choice == q['choices'][q['answer']] else "Wrong!",
+                    ephemeral=True
+                )
 
                 # Disable buttons
                 for item in view.children:
@@ -153,7 +161,7 @@ class NatGame(commands.Cog):
                 # Add the question
                 answer = random.randint(0, 3)
                 session.questions.append({
-                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{choices[answer]['default_photo']['id']}/original.jpg",
+                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{choices[answer].get('default_photo').get('id')}/original.jpg",
                     'choices': [f"{choice['preferred_common_name'] or '-'} ({choice['name']})" for choice in choices],
                     'answer': answer,
                     'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
@@ -167,21 +175,21 @@ class NatGame(commands.Cog):
 
         await self.render_question(ctx, session)
     
-    async def send_correct(self, ctx, question):
+    async def send_correct(self, interaction, question):
         embed = discord.Embed(
             title='Correct!',
             description=f"[{question['choices'][question['answer']]}]({question['answer_url']})",
             color=0x579E36
         )
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
-    async def send_wrong(self, ctx, question):
+    async def send_wrong(self, interaction, question):
         embed = discord.Embed(
             title='Incorrect.',
             description=f"That was a {question['choices'][question['answer']]} [Link]({question['answer_url']})",
             color=0xE86756
         )
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
     async def end_game(self, ctx, session):
         embed = discord.Embed(
