@@ -82,7 +82,7 @@ async def randomSpecies(ctx):
 
     name = species.get('preferred_common_name', 'Unknown')
     scientific = species.get('name', 'Unknown')
-    summary = species.get('wikipedia_summary')
+    summary = species.get('wikipedia_summary', 'No discription')
 
     photo = species.get('default_photo', {})
     image_url = photo.get('url')
