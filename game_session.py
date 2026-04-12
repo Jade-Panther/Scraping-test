@@ -1,9 +1,8 @@
 class GameSession:
-    def __init__(self, config):
-        self.taxa = config['taxa']
-        self.type = config['type']
-        self.question_num = config['questions']
+    def __init__(self, taxa, question_num):
+        self.taxa = taxa
+        self.question_count = question_num
+        self.type = None
         self.questions = []
+        self.current_index = 0
         self.score = 0
-        self.current = 0
-        self.expire = 0 # TODO: Time based expire

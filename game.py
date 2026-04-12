@@ -15,56 +15,44 @@ class NatGame(commands.Cog):
         
     @commands.command()
     async def game(self, ctx, *args):
-        if len(args) < 2:
-            await ctx.send('Usage: !game <taxa> <questions>')
-            return
-
         *taxa_parts, questions = args
         taxa = ' '.join(taxa_parts)
 
-        try:
-            questions = int(questions)
-        except ValueError:
-            await ctx.send('Questions must be a number.')
-            return
-        
-        # Get all the taxons that match the search query
-        results = self.inat.get_taxons({'q': 'hawks'})[:10]
+        questions = int(questions)
 
-        # Initalize a game session
-        self.sessions[ctx.author.id] = GameSession({
-            'taxa': results,
-            'type': 'multiple choice',
-            'questions': questions
-        })
+        results = [
+            t for t in self.inat.get_taxons({'q': taxa})
+            if t.get('rank_level', 0) > 20
+        ][:10]
 
-        # Send embed with taxon choices
+        self.sessions[ctx.author.id] = GameSession(results, questions)
+
         embed = discord.Embed(
-            title='Search results',
-            description='',
+            title="Choose a game mode",
+            description="Multiple Choice or Free Answer?",
             color=0x7D56E8
         )
 
-        button1 = Button(label='Option 1', style=discord.ButtonStyle.primary, custom_id='opt1')
-
-        async def button_callback(interaction):
-            await interaction.response.send_message(
-                f"You clicked {interaction.data['custom_id']}",
-                ephemeral=True
-            )
-
-        button1.callback = button_callback
-
         view = View()
-        view.add_item(button1)
 
-        for i, taxon in enumerate(results):
-            embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](https://www.inaturalist.org/taxa/{taxon.get('id')})\n"
+        for mode in self.game_types:
+            btn = Button(label=mode, style=discord.ButtonStyle.primary)
 
-        embed.description += 'Use !pick to choose which taxon to quiz'
+            async def callback(interaction, mode=mode):
+                session = self.sessions[ctx.author.id]
+                session.type = mode
+
+                self.init_game(session)
+
+                await interaction.response.send_message(
+                    f"Game mode set to {mode}",
+                    ephemeral=True
+                )
+
+            btn.callback = callback
+            view.add_item(btn)
+
         await ctx.send(embed=embed, view=view)
-
-        await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
 
     @commands.command()
     async def pick(self, ctx, num):
@@ -78,6 +66,24 @@ class NatGame(commands.Cog):
 
         if isinstance(session.taxa, list):
             session.taxa = session.taxa[num]['id']
+
+        async def button_callback(interaction):
+            session.type = interaction.data['label']
+            self.init_game(session, ctx)
+            await interaction.response.send_message(
+                f"You clicked {interaction.data['custom_id']}",
+                ephemeral=True
+            )
+
+        # Add the buttons for question type selection
+        view = View()
+        buttons = [
+            Button(label=self.game_types[i], style=discord.ButtonStyle.primary, custom_id='opt1') 
+            for i in self.game_types
+        ]
+        for b in buttons:
+            b.callback = button_callback
+            view.add_item(b)
             
         await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
 
@@ -85,30 +91,41 @@ class NatGame(commands.Cog):
     async def play(self, ctx):
         session = self.sessions[ctx.author.id]
 
-        embeds = []
+        q = session.questions[session.current_index]
 
-        if(session.type == 'multiple choice'):
-            embed = discord.Embed(
-                title='Multiple Choice',
-                description='Pick the correct answer!',
-                color=0x7D56E8
-            )
+        embed = discord.Embed(
+            title='Question',
+            description='Pick the correct answer',
+            color=0x7D56E8
+        )
 
-            button1 = Button(label='Option 1', style=discord.ButtonStyle.primary)
-            button2 = Button(label="Option 2", style=discord.ButtonStyle.primary)
-            button3 = Button(label="Option 3", style=discord.ButtonStyle.primary)
-            button4 = Button(label="Option 4", style=discord.ButtonStyle.primary)
+        embed.set_image(url=q['img_url'])
 
-            
-            embeds.append(embed)
+        view = View()
 
-        await ctx.send(embeds=embeds)
+        for choice in q['choices']:
+            btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
-    def init_game(self, session):
+            async def callback(interaction, choice=choice):
+                if choice == q['answer']:
+                    session.score += 1
+
+                session.current_index += 1
+                await interaction.response.send_message(f"Selected {choice}", ephemeral=True)
+
+            btn.callback = callback
+            view.add_item(btn)
+
+        await ctx.send(embed=embed, view=view)
+
+    async def init_game(self, session, ctx):
         if session.type == 'multiple choice':
-            for i in range(session.question_num):
+            for _ in range(session.question_num):
                 session.questions.append({
                     'img_url': 'https://inaturalist-open-data.s3.amazonaws.com/photos/404683762/large.jpg',
-                    'choices': ['blueberry', 'blueberry', 'blueberry', 'blueberry']
+                    'choices': ['blueberry', 'blackberry', 'blueberry', 'blueberry'],
+                    'answer': 'blackberry'
                 })
+
+            
         
