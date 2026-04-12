@@ -123,7 +123,7 @@ class NatGame(commands.Cog):
                 session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
                 session.result_embed.color = 0x579E36 if correct else 0xE86756
                     
-                await session.message.edit(embed=session.result_embed, view=session.view)
+                await session.message.edit(embed=session.result_embed, view=view)
                 
 
                 # Disable buttons
