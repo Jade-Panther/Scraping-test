@@ -42,7 +42,7 @@ class NatGame(commands.Cog):
             color=0x7D56E8
         )
 
-        for taxon, i in enumerate(results):
+        for i, taxon in enumerate(results):
             embed.description += f"{i+1}. {taxon['matched_term']} [Link]({taxon['url']})"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
