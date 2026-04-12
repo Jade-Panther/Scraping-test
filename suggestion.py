@@ -55,6 +55,7 @@ class INatClient:
         url = self.BASE_URL + '/taxa'
         r = requests.get(url, params=params)
         return r.json()['results']
+    
 
     def filter_rare(self, observations):
         rare_obs = []

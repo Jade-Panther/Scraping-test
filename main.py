@@ -35,7 +35,7 @@ async def hi(ctx):
     await ctx.send(f"Hello {ctx.author.name}!")
 
 @bot.command()
-async def info(ctx):
+async def info(ctx, radius=100):
     rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))[:6]
 
     print(rare_sightings)
@@ -53,7 +53,7 @@ async def info(ctx):
         if photos and len(photos) > 0:
             embed.set_image(url=photos[0].get('url').replace('large', 'original'))
 
-        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations'+str(obs.get('id')), inline=True)
+        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations/'+str(obs.get('id')), inline=True)
         #embed.set_footer(text="Footer text here")
 
         embeds.append(embed)
@@ -96,7 +96,7 @@ async def randomSpecies(ctx):
         color=0x7D56E8
     )
 
-    embed.add_field(name="Scientific name", value=scientific, inline=False)
+    embed.add_field(name=scientific, value='www.inaturalist.org/taxa/'+species.id, inline=False)
 
     if image_url:
         embed.set_image(url=image_url)
@@ -104,8 +104,25 @@ async def randomSpecies(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def game(ctx):
-    pass
+async def game(ctx, *args):
+    if len(args) < 2:
+        await ctx.send('Usage: !game <taxa> <questions>')
+        return
+
+    *taxa_parts, questions = args
+    taxa = ' '.join(taxa_parts)
+
+    try:
+        questions = int(questions)
+    except ValueError:
+        await ctx.send('Questions must be a number.')
+        return
+    
+    results = inat.get_taxons({'q': 'hawks'})
+
+    await ctx.send(f'Results: {results}')
+    await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
+    
 
 @bot.event
 async def on_message(message):
