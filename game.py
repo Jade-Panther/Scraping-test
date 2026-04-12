@@ -45,7 +45,7 @@ class NatGame(commands.Cog):
             color=0x7D56E8
         )
 
-        button1 = Button(label='', style=discord.ButtonStyle.primary)
+        button1 = Button(label='Option 1', style=discord.ButtonStyle.primary, custom_id='opt1')
 
         async def button_callback(interaction):
             await interaction.response.send_message(
@@ -94,7 +94,7 @@ class NatGame(commands.Cog):
                 color=0x7D56E8
             )
 
-            button1 = Button(label='', style=discord.ButtonStyle.primary)
+            button1 = Button(label='Option 1', style=discord.ButtonStyle.primary)
             button2 = Button(label="Option 2", style=discord.ButtonStyle.primary)
             button3 = Button(label="Option 3", style=discord.ButtonStyle.primary)
             button4 = Button(label="Option 4", style=discord.ButtonStyle.primary)
