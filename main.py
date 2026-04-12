@@ -19,11 +19,11 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-bot.add_cog(NatGame(bot, inat))
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}!")
+    await bot.add_cog(NatGame(bot, inat))  
+
     user = await bot.fetch_user(USER_ID)
     await user.send("Hello! This is a DM from your bot.")
 
