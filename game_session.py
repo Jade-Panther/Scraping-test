@@ -9,7 +9,7 @@ class GameSession:
         self.current_index = 0
         self.score = 0
         self.message = None
-        self.view = None
+        self.result_embed = None
     
     def reset(self):
         self.score = 0

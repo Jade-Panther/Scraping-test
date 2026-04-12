@@ -65,6 +65,7 @@ class NatGame(commands.Cog):
                 session = self.sessions[interaction.user.id]
                 session.type = mode
 
+                session.result_embed = discord.Embed(color=0x579E36)
                 await self.init_game(session)
                 await interaction.followup.send(f"Use !play to begin!")
 
@@ -100,10 +101,7 @@ class NatGame(commands.Cog):
         embed.description += q['img_url']
 
         view = View(timeout=60)
-        if session.view is None:
-            session.view = View(timeout=60)
-        else:
-            session.view.clear_items()
+        
 
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
@@ -120,19 +118,18 @@ class NatGame(commands.Cog):
                 if correct:
                     session.score += 1
 
-                embed = discord.Embed(
-                    title='Correct!' if correct else 'Wrong',
-                    description=f"[{q['choices'][q['answer']]}]({q['answer_url']})",
-                    color=0x579E36 if correct else 0xE86756
-                )
-                await interaction.followup.send(embed=embed)
+                session.result_embed.title = "Correct!" if correct else "Wrong"
+                session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
+                session.result_embed.color = 0x579E36 if correct else 0xE86756
+                    
+                await interaction.followup.send(embed=session.result_embed)
                 
 
                 # Disable buttons
-                for item in session.view.children:
+                for item in view.children:
                     item.disabled = True
                 
-                await interaction.message.edit(view=session.view)
+                await interaction.message.edit(view=view)
                 await asyncio.sleep(1.5)
                 await self.next_question(ctx, session)
 
@@ -141,9 +138,9 @@ class NatGame(commands.Cog):
 
         # Send or edit message
         if session.message is None:
-            session.message = await ctx.send(embed=embed, view=session.view)
+            session.message = await ctx.send(embed=embed, view=view)
         else:
-            await session.message.edit(embed=embed, view=session.view)
+            await session.message.edit(embed=embed, view=view)
 
         session.answered = False
 
