@@ -54,11 +54,13 @@ class NatGame(commands.Cog):
 
         # Add buttons for game types
         await ctx.send('Pick a Game Mode')
-        view = View()
+        view = View(timeout=60)
         for mode in self.game_types:
             btn = Button(label=mode, style=discord.ButtonStyle.primary)
 
             async def callback(interaction, mode=mode):
+                await interaction.response.defer(ephemeral=True)
+
                 session = self.sessions[interaction.user.id]
                 session.type = mode
 
@@ -91,24 +93,24 @@ class NatGame(commands.Cog):
 
         embed.set_image(url=q['img_url'])
 
-        view = View()
+        view = View(timeout=60)
 
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
             async def callback(interaction, choice=choice, q=q):
-
-                if getattr(session, 'answered', False):
+                print('Inside callback')
+                if not session.answered:
                     return await interaction.response.send_message(
                         "Already answered!",
                         ephemeral=True
                     )
 
                 session.answered = True
-
                 correct = (choice == q['choices'][q['answer']])
 
                 await interaction.response.defer(ephemeral=True)
+                print('after defer')
 
                 if correct:
                     session.score += 1
@@ -117,11 +119,12 @@ class NatGame(commands.Cog):
                     "Correct!" if correct else "Wrong!",
                     ephemeral=True
                 )
+                print('followup sent')
 
                 # Disable buttons
                 for item in view.children:
                     item.disabled = True
-
+                print('disabled stuff')
                 await interaction.message.edit(view=view)
                 await self.next_question(ctx, session)
 
