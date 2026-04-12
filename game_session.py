@@ -7,3 +7,7 @@ class GameSession:
         self.questions = []
         self.current_index = 0
         self.score = 0
+    
+    def reset(self):
+        self.score = 0
+        self.current_index = 0

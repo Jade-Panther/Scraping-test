@@ -89,7 +89,7 @@ class NatGame(commands.Cog):
         q = session.questions[session.current_index]
 
         embed = discord.Embed(
-            title='Question',
+            title=f"Question #{session.current_index+1}",
             description='Pick the correct answer',
             color=0x7D56E8
         )
@@ -102,13 +102,16 @@ class NatGame(commands.Cog):
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
             async def callback(interaction, choice=choice):
-                if choice == q['answer']:
+                if q['choices'].index(choice) == q['answer']:
                     session.score += 1
+                    await self.send_correct(ctx, q)
+                else:
+                    await self.send_wrong(ctx, q)
 
                 if session.current_index < session.question_num-1:
                     session.current_index += 1
                 else:
-                    await self.end_game()
+                    await self.end_game(ctx, session)
                 await interaction.response.send_message(f"Selected {choice}", ephemeral=True)
 
             btn.callback = callback
@@ -121,12 +124,35 @@ class NatGame(commands.Cog):
             for _ in range(session.question_num):
                 session.questions.append({
                     'img_url': 'https://inaturalist-open-data.s3.amazonaws.com/photos/404683762/large.jpg',
-                    'choices': ['blueberry', 'blackberry', 'blueberry', 'blueberry'],
-                    'answer': 'blackberry'
+                    'choices': ['blueberry (scientific)', 'blackberry', 'blueberry', 'blueberry'],
+                    'answer': 2,
+                    'answer_url': 'https://www.inaturalist.org/taxa/71261-Accipitriformes'
                 })
+    
+    async def send_correct(self, ctx, question):
+        embed = discord.Embed(
+            title='Correct!',
+            description=f"[Link]({question['answer_url']})",
+            color=0x7D56E8
+        )
+        await ctx.send(embed=embed)
 
-    async def end_game(self, session):
-        pass
+    async def send_wrong(self, ctx, question):
+        embed = discord.Embed(
+            title='Incorrect.',
+            description=f"That was a {question['choices'][question['answer']]} [Link]({question['answer_url']})",
+            color=0xE86756
+        )
+        await ctx.send(embed=embed)
+
+    async def end_game(self, ctx, session):
+        embed = discord.Embed(
+            title=f"You got {session.score}/{session.question_num} Correct! ",
+            description='Use the !play command to play again or !game to play a different one',
+            color=0x566CE8
+        )
+        session.reset()
+        await ctx.send(embed=embed)
 
             
         
