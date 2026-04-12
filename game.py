@@ -96,7 +96,6 @@ class NatGame(commands.Cog):
 
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
-            btn.view = view
 
             async def callback(interaction, choice=choice, q=q):
                 print('Inside callback')
