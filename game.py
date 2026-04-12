@@ -39,11 +39,12 @@ class NatGame(commands.Cog):
         # Send embed with taxon choices
         embed = discord.Embed(
             title='Search results',
+            description='',
             color=0x7D56E8
         )
 
         for i, taxon in enumerate(results):
-            embed.description += f"{i+1}. {taxon['matched_term']} [Link](www.inaturalist.org/taxa/{taxon.get('id')})"
+            embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](www.inaturalist.org/taxa/{taxon.get('id')})\n"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
 
@@ -55,13 +56,15 @@ class NatGame(commands.Cog):
             num = int(num)
         except ValueError:
             await ctx.send('Usage: !pick <number>')
+            return
 
         session = self.sessions[ctx.author.id]
 
-        if type(session.taxa) == list:
-            session.taxa == session.taxa[num]['id']
+        if isinstance(session.taxa, list):
+            session.taxa = session.taxa[num]['id']
+            
 
-        await ctx.send(f'Taxa: {session.taxa[:1000]}')
+        await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
 
     async def display_question(self, ctx):
         session = self.sessions[ctx.author.id]
