@@ -1,6 +1,8 @@
 from discord.ext import commands
+from discord.ui import Button, View
 from suggestion import *
 from game_session import *
+
 import random
 import discord
 
@@ -44,7 +46,7 @@ class NatGame(commands.Cog):
         )
 
         for i, taxon in enumerate(results):
-            embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](www.inaturalist.org/taxa/{taxon.get('id')})\n"
+            embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](https://www.inaturalist.org/taxa/{taxon.get('id')})\n"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
         await ctx.send(embed=embed)
@@ -61,27 +63,39 @@ class NatGame(commands.Cog):
 
         session = self.sessions[ctx.author.id]
 
-
         if isinstance(session.taxa, list):
             session.taxa = session.taxa[num]['id']
             
         await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
 
-    async def display_question(self, ctx):
+    @commands.command()
+    async def play(self, ctx):
         session = self.sessions[ctx.author.id]
 
         embeds = []
 
         if(session.type == 'multiple choice'):
-            # Add the images
-            for i in range(4):
-                embed = discord.Embed(color=0x7D56E8)
-                embed.description = 'Question #' + str(i+1)
+            embed = discord.Embed(
+                title='Multiple Choice',
+                description='Pick the correct answer!',
+                color=0x7D56E8
+            )
 
-                if i == 0:
-                    embed.title = 'Multiple Choice - Questions'
+            button1 = Button(label='', style=discord.ButtonStyle.primary)
+            button2 = Button(label="Option 2", style=discord.ButtonStyle.primary)
+            button3 = Button(label="Option 3", style=discord.ButtonStyle.primary)
+            button4 = Button(label="Option 4", style=discord.ButtonStyle.primary)
 
-                embeds.append(embed)
+            
+            embeds.append(embed)
 
         await ctx.send(embeds=embeds)
+
+    def init_game(self, session):
+        if session.type == 'multiple choice':
+            for i in range(session.question_num):
+                session.questions.append({
+                    'img_url': 'https://inaturalist-open-data.s3.amazonaws.com/photos/404683762/large.jpg',
+                    'choices': ['blueberry', 'blueberry', 'blueberry', 'blueberry']
+                })
         
