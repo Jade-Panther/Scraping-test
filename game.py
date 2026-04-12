@@ -66,6 +66,7 @@ class NatGame(commands.Cog):
                 session.type = mode
 
                 session.result_embed = discord.Embed(color=0x579E36)
+                
                 await self.init_game(session)
                 await interaction.followup.send(f"Use !play to begin!")
 
@@ -122,7 +123,7 @@ class NatGame(commands.Cog):
                 session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
                 session.result_embed.color = 0x579E36 if correct else 0xE86756
                     
-                await interaction.followup.send(embed=session.result_embed)
+                await session.message.edit(embed=session.result_embed, view=session.view)
                 
 
                 # Disable buttons
