@@ -92,6 +92,7 @@ class NatGame(commands.Cog):
         )
 
         embed.set_image(url=q['img_url'])
+        embed.description += q['img_url']
 
         view = View(timeout=60)
 
@@ -100,12 +101,7 @@ class NatGame(commands.Cog):
 
             async def callback(interaction, choice=choice, q=q):
                 print('Inside callback')
-                if not session.answered:
-                    return await interaction.response.send_message(
-                        "Already answered!",
-                        ephemeral=True
-                    )
-
+        
                 session.answered = True
                 correct = (choice == q['choices'][q['answer']])
 
@@ -115,10 +111,12 @@ class NatGame(commands.Cog):
                 if correct:
                     session.score += 1
 
-                await interaction.followup.send(
-                    "Correct!" if correct else "Wrong!",
-                    ephemeral=True
+                embed = discord.Embed(
+                    title='Correct!' if correct else 'Wrong',
+                    description=f"[{q['choices'][q['answer']]}]({q['answer_url']})",
+                    color=0x579E36 if correct else 0xE86756
                 )
+                interaction.followup.send(embed=embed)
                 print('followup sent')
 
                 # Disable buttons
@@ -180,22 +178,6 @@ class NatGame(commands.Cog):
             return await self.end_game(ctx, session)
 
         await self.render_question(ctx, session)
-    
-    async def send_correct(self, interaction, question):
-        embed = discord.Embed(
-            title='Correct!',
-            description=f"[{question['choices'][question['answer']]}]({question['answer_url']})",
-            color=0x579E36
-        )
-        await interaction.response.send_message(embed=embed)
-
-    async def send_wrong(self, interaction, question):
-        embed = discord.Embed(
-            title='Incorrect.',
-            description=f"That was a {question['choices'][question['answer']]} [Link]({question['answer_url']})",
-            color=0xE86756
-        )
-        await interaction.response.send_message(embed=embed)
 
     async def end_game(self, ctx, session):
         embed = discord.Embed(
