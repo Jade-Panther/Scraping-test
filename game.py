@@ -65,7 +65,7 @@ class NatGame(commands.Cog):
                 session.type = mode
 
                 await self.init_game(session)
-                await interaction.response.send_message(
+                await interaction.followup.send(
                     f"Use !play to begin!",
                     ephemeral=True
                 )
