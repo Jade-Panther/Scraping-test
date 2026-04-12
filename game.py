@@ -5,6 +5,7 @@ from game_session import *
 
 import random
 import discord
+import asyncio
 
 class NatGame(commands.Cog):
     def __init__(self, bot, inat):
@@ -65,10 +66,7 @@ class NatGame(commands.Cog):
                 session.type = mode
 
                 await self.init_game(session)
-                await interaction.followup.send(
-                    f"Use !play to begin!",
-                    ephemeral=True
-                )
+                await interaction.followup.send(f"Use !play to begin!")
 
             btn.callback = callback
             view.add_item(btn)
@@ -98,6 +96,7 @@ class NatGame(commands.Cog):
 
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
+            btn.view = view
 
             async def callback(interaction, choice=choice, q=q):
                 print('Inside callback')
@@ -116,14 +115,15 @@ class NatGame(commands.Cog):
                     description=f"[{q['choices'][q['answer']]}]({q['answer_url']})",
                     color=0x579E36 if correct else 0xE86756
                 )
-                interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed)
                 print('followup sent')
 
                 # Disable buttons
                 for item in view.children:
                     item.disabled = True
                 print('disabled stuff')
-                await interaction.message.edit(view=view)
+                await interaction.message.edit(view=interaction.message.components[0])
+                await asyncio.sleep(1.5)
                 await self.next_question(ctx, session)
 
             btn.callback = callback
