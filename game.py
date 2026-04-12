@@ -45,11 +45,24 @@ class NatGame(commands.Cog):
             color=0x7D56E8
         )
 
+        button1 = Button(label='', style=discord.ButtonStyle.primary)
+
+        async def button_callback(interaction):
+            await interaction.response.send_message(
+                f"You clicked {interaction.data['custom_id']}",
+                ephemeral=True
+            )
+
+        button1.callback = button_callback
+
+        view = View()
+        view.add_item(button1)
+
         for i, taxon in enumerate(results):
             embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](https://www.inaturalist.org/taxa/{taxon.get('id')})\n"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, view=view)
 
         await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
 
