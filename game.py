@@ -75,7 +75,7 @@ class NatGame(commands.Cog):
             view.add_item(btn)
 
         await ctx.send(view=view)
-        await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
+        await ctx.send(f'Taxa selected: {str(session.taxon)[:1000]}')
 
     @commands.command()
     async def play(self, ctx):
@@ -160,10 +160,10 @@ class NatGame(commands.Cog):
                 # Add the question
                 answer = random.randint(0, 3)
                 session.questions.append({
-                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{answer['default_photo']}/original.jpg",
+                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{choices[answer]['default_photo']}/original.jpg",
                     'choices': [f"{choice['preferred_common_name'] or '-'} ({choice['name']})" for choice in choices],
                     'answer': answer,
-                    'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer].id}"
+                    'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
                 })
 
     async def next_question(self, ctx, session):
