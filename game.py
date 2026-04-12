@@ -52,14 +52,8 @@ class NatGame(commands.Cog):
         if session.taxon is None:
             session.taxon = session.taxa_results[num]
 
-        # Add the buttons for question type selection
-        embed = discord.Embed(
-            title='Choose a game mode',
-            description='Multiple Choice or Free Answer?',
-            color=0x7D56E8
-        )
-
         # Add buttons for game types
+        await ctx.send('Pick a Game Mode')
         view = View()
         for mode in self.game_types:
             btn = Button(label=mode, style=discord.ButtonStyle.primary)
@@ -75,7 +69,6 @@ class NatGame(commands.Cog):
             view.add_item(btn)
 
         await ctx.send(view=view)
-        await ctx.send(f'Taxa selected: {str(session.taxon)[:1000]}')
 
     @commands.command()
     async def play(self, ctx):
