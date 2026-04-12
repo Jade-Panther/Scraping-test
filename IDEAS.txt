@@ -5,6 +5,14 @@ INAT: https://api.inaturalist.org/v2/docs/
 - Guess the animal game
 - Give facts about recently observed organism
 
+QUIZ IDEAS:
+
+Guess the species
+- Show image
+- User picks correct name
+- Easy: 4 choices
+
+
 
 NASA
 - Space picture of the day

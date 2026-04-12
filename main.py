@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 import random
 from suggestion import *
+from game import *
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-
+bot.add_cog(NatGame(bot, inat))
 
 @bot.event
 async def on_ready():
@@ -103,27 +104,7 @@ async def randomSpecies(ctx):
 
     await ctx.send(embed=embed)
 
-@bot.command()
-async def game(ctx, *args):
-    if len(args) < 2:
-        await ctx.send('Usage: !game <taxa> <questions>')
-        return
-
-    *taxa_parts, questions = args
-    taxa = ' '.join(taxa_parts)
-
-    try:
-        questions = int(questions)
-    except ValueError:
-        await ctx.send('Questions must be a number.')
-        return
     
-    results = inat.get_taxons({'q': 'hawks'})
-
-    await ctx.send(f"Results: {str(results)[:3]}")
-    await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
-    
-
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
