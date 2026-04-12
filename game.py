@@ -141,9 +141,9 @@ class NatGame(commands.Cog):
 
         # Send or edit message
         if session.message is None:
-            session.message = await ctx.send(embed=embed, view=view)
+            session.message = await ctx.send(embed=embed, view=session.view)
         else:
-            await session.message.edit(embed=embed, view=view)
+            await session.message.edit(embed=embed, view=session.view)
 
         session.answered = False
 
