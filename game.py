@@ -97,7 +97,7 @@ class NatGame(commands.Cog):
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
-            async def callback(interaction, choice=choice, q=q):
+            async def callback(interaction, choice=choice, q=q, view=view):
                 print('Inside callback')
         
                 session.answered = True
@@ -121,7 +121,7 @@ class NatGame(commands.Cog):
                 for item in view.children:
                     item.disabled = True
                 
-                await interaction.message.edit(components=interaction.message.components)
+                await interaction.message.edit(view=view)
                 await asyncio.sleep(1.5)
                 await self.next_question(ctx, session)
 
