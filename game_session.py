@@ -3,6 +3,6 @@ class GameSession:
         self.taxa = config['taxa']
         self.type = config['type']
         self.questions = config['questions']
-        self.score = self.score
+        self.score = 0
         self.current = 0
         self.expire = 0 # TODO: Time based expire
