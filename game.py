@@ -105,7 +105,7 @@ class NatGame(commands.Cog):
                 correct = (choice == q['choices'][q['answer']])
 
                 await interaction.response.defer(ephemeral=True)
-                print('after defer')
+                
 
                 if correct:
                     session.score += 1
@@ -116,13 +116,13 @@ class NatGame(commands.Cog):
                     color=0x579E36 if correct else 0xE86756
                 )
                 await interaction.followup.send(embed=embed)
-                print('followup sent')
+                
 
                 # Disable buttons
                 for item in view.children:
                     item.disabled = True
-                print('disabled stuff')
-                await interaction.message.edit(view=interaction.message.components[0])
+                
+                await interaction.message.edit(components=interaction.message.components)
                 await asyncio.sleep(1.5)
                 await self.next_question(ctx, session)
 
