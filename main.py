@@ -96,7 +96,7 @@ async def randomSpecies(ctx):
         color=0x7D56E8
     )
 
-    embed.add_field(name=scientific, value='www.inaturalist.org/taxa/'+species.get('id'), inline=False)
+    embed.add_field(name=scientific, value='www.inaturalist.org/taxa/'+str(species.get('id')), inline=False)
 
     if image_url:
         embed.set_image(url=image_url)
