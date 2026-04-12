@@ -7,6 +7,7 @@ class NatGame(commands.Cog):
     def __init__(self, bot, inat):
         self.bot = bot
         self.inat = inat
+        self.game_types = ['multiple choice', 'free answer']
         self.sessions = {}
         
     @commands.command()
@@ -27,7 +28,7 @@ class NatGame(commands.Cog):
         results = self.inat.get_taxons({'q': 'hawks'})[:10]
 
         self.sessions[ctx.author.id] = GameSession({
-            'taxa': taxa,
+            'taxa': results,
             'type': 'multiple choice',
             'questions': questions
         })
@@ -43,3 +44,11 @@ class NatGame(commands.Cog):
             num = int(num)
         except ValueError:
             await ctx.send('Usage: !pick <number>')
+
+        session = self.sessions[ctx.author.id]
+
+        if type(session.taxa) == list:
+            session.taxa == session.taxa[num]['id']
+
+        await ctx.send(f'Taxa: {session.taxa}')
+        
