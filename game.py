@@ -2,6 +2,7 @@ from discord.ext import commands
 from suggestion import *
 from game_session import *
 import random
+import discord
 
 class NatGame(commands.Cog):
     def __init__(self, bot, inat):
@@ -25,16 +26,26 @@ class NatGame(commands.Cog):
             await ctx.send('Questions must be a number.')
             return
         
+        # Get all the taxons that match the search query
         results = self.inat.get_taxons({'q': 'hawks'})[:10]
 
+        # Initalize a game session
         self.sessions[ctx.author.id] = GameSession({
             'taxa': results,
             'type': 'multiple choice',
             'questions': questions
         })
 
-        for taxon in results:
-            await ctx.send(f'Match: {taxon.get("matched_term")}')
+        # Send embed with taxon choices
+        embed = discord.Embed(
+            title='Search results',
+            color=0x7D56E8
+        )
+
+        for taxon, i in enumerate(results):
+            embed.description += f"{i+1}. {taxon['matched_term']} [Link]({taxon['url']})"
+
+        embed.description += 'Use !pick to choose which taxon to quiz'
 
         await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
 
@@ -50,5 +61,5 @@ class NatGame(commands.Cog):
         if type(session.taxa) == list:
             session.taxa == session.taxa[num]['id']
 
-        await ctx.send(f'Taxa: {session.taxa}')
+        await ctx.send(f'Taxa: {session.taxa[:1000]}')
         

@@ -54,9 +54,8 @@ async def info(ctx, radius=100):
         if photos and len(photos) > 0:
             embed.set_image(url=photos[0].get('url').replace('large', 'original'))
 
-        embed.add_field(name=obs.get('species_guess'), value='www.inaturalist.org/observations/'+str(obs.get('id')), inline=True)
-        #embed.set_footer(text="Footer text here")
-
+        embed.add_field(name=obs.get('species_guess'), value=f"[Observation Link]('https://www.inaturalist.org/observations/{obs.get('id')}')", inline=True)
+        
         embeds.append(embed)
     
     if len(embeds) == 0:
@@ -76,7 +75,7 @@ async def randomSpecies(ctx):
     })
 
     if not results:
-        await ctx.send("Couldn't find any species.")
+        await ctx.send('Couldn\'t find any species.')
         return
     
     species = random.choice(results)
@@ -84,6 +83,7 @@ async def randomSpecies(ctx):
     name = species.get('preferred_common_name', 'Unknown')
     scientific = species.get('name', 'Unknown')
     summary = species.get('wikipedia_summary', 'No discription')
+    print(species)
 
     photo = species.get('default_photo', {})
     image_url = photo.get('url')
@@ -97,7 +97,7 @@ async def randomSpecies(ctx):
         color=0x7D56E8
     )
 
-    embed.add_field(name=scientific, value='www.inaturalist.org/taxa/'+str(species.get('id')), inline=False)
+    embed.add_field(name=scientific, value=f"[Taxon Link](www.inaturalist.org/taxa/{species.get('id')})", inline=False)
 
     if image_url:
         embed.set_image(url=image_url)
