@@ -25,34 +25,19 @@ class NatGame(commands.Cog):
             if t.get('rank_level', 0) > 20
         ][:10]
 
-        self.sessions[ctx.author.id] = GameSession(results, questions)
-
         embed = discord.Embed(
-            title="Choose a game mode",
-            description="Multiple Choice or Free Answer?",
+            title='Choose a taxon',
+            description='Use the !pick command to select',
             color=0x7D56E8
         )
 
-        view = View()
+        for i, taxon in enumerate(results):
+            embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} ([{taxon.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{taxon.get('id')}))\n"
 
-        for mode in self.game_types:
-            btn = Button(label=mode, style=discord.ButtonStyle.primary)
+        self.sessions[ctx.author.id] = GameSession(results, questions)
 
-            async def callback(interaction, mode=mode):
-                session = self.sessions[ctx.author.id]
-                session.type = mode
-
-                self.init_game(session)
-
-                await interaction.response.send_message(
-                    f"Game mode set to {mode}",
-                    ephemeral=True
-                )
-
-            btn.callback = callback
-            view.add_item(btn)
-
-        await ctx.send(embed=embed, view=view)
+        
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def pick(self, ctx, num):
@@ -64,27 +49,37 @@ class NatGame(commands.Cog):
 
         session = self.sessions[ctx.author.id]
 
-        if isinstance(session.taxa, list):
-            session.taxa = session.taxa[num]['id']
+        if session.taxon is None:
+            session.taxon = session.taxa_results[num]['id']
 
-        async def button_callback(interaction):
-            session.type = interaction.data['label']
-            self.init_game(session)
-            await interaction.response.send_message(
-                f"You clicked {interaction.data['custom_id']}",
-                ephemeral=True
-            )
 
         # Add the buttons for question type selection
+        embed = discord.Embed(
+            title='Choose a game mode',
+            description='Multiple Choice or Free Answer?',
+            color=0x7D56E8
+        )
+
+        # Add buttons for game types
         view = View()
-        buttons = [
-            Button(label=self.game_types[i], style=discord.ButtonStyle.primary, custom_id='opt1') 
-            for i in self.game_types
-        ]
-        for b in buttons:
-            b.callback = button_callback
-            view.add_item(b)
-            
+        for mode in self.game_types:
+            btn = Button(label=mode, style=discord.ButtonStyle.primary)
+
+            async def callback(interaction, mode=mode):
+                session = self.sessions[interaction.user.id]
+                session.type = mode
+
+                await self.init_game(session)
+
+                await interaction.response.send_message(
+                    f"Game mode set to {mode}",
+                    ephemeral=True
+                )
+
+            btn.callback = callback
+            view.add_item(btn)
+
+        await ctx.send(view=view)
         await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
 
     @commands.command()
@@ -110,7 +105,10 @@ class NatGame(commands.Cog):
                 if choice == q['answer']:
                     session.score += 1
 
-                session.current_index += 1
+                if session.current_index < session.question_num-1:
+                    session.current_index += 1
+                else:
+                    await self.end_game()
                 await interaction.response.send_message(f"Selected {choice}", ephemeral=True)
 
             btn.callback = callback
@@ -126,6 +124,9 @@ class NatGame(commands.Cog):
                     'choices': ['blueberry', 'blackberry', 'blueberry', 'blueberry'],
                     'answer': 'blackberry'
                 })
+
+    async def end_game(self, session):
+        pass
 
             
         

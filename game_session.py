@@ -1,7 +1,8 @@
 class GameSession:
-    def __init__(self, taxa, question_num):
-        self.taxa = taxa
-        self.question_count = question_num
+    def __init__(self, taxa_results, question_num):
+        self.taxa_results = taxa_results
+        self.taxon = None
+        self.question_num = question_num
         self.type = None
         self.questions = []
         self.current_index = 0
