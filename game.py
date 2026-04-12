@@ -97,19 +97,24 @@ class NatGame(commands.Cog):
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
             async def callback(interaction, choice=choice, q=q):
+
                 if getattr(session, 'answered', False):
-                    return await interaction.response.send_message("Already answered!", ephemeral=True)
+                    return await interaction.response.send_message(
+                        "Already answered!",
+                        ephemeral=True
+                    )
 
                 session.answered = True
 
-                if choice == q['choices'][q['answer']]:
-                    session.score += 1
-                #     await self.send_correct(interaction, q)
-                # else:
-                #     await self.send_wrong(interaction, q)
+                correct = (choice == q['choices'][q['answer']])
 
-                await interaction.response.send_message(
-                    "Correct!" if choice == q['choices'][q['answer']] else "Wrong!",
+                await interaction.response.defer(ephemeral=True)
+
+                if correct:
+                    session.score += 1
+
+                await interaction.followup.send(
+                    "Correct!" if correct else "Wrong!",
                     ephemeral=True
                 )
 
@@ -118,8 +123,6 @@ class NatGame(commands.Cog):
                     item.disabled = True
 
                 await interaction.message.edit(view=view)
-
-                # Go to next question
                 await self.next_question(ctx, session)
 
             btn.callback = callback
