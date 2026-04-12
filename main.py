@@ -82,7 +82,7 @@ async def randomSpecies(ctx):
 
     name = species.get('preferred_common_name', 'Unknown')
     scientific = species.get('name', 'Unknown')
-    summary = species.get('wikipedia_summary', 'No description available.')
+    summary = species.get('wikipedia_summary')
 
     photo = species.get('default_photo', {})
     image_url = photo.get('url')
@@ -120,7 +120,7 @@ async def game(ctx, *args):
     
     results = inat.get_taxons({'q': 'hawks'})
 
-    await ctx.send(f'Results: {results}')
+    await ctx.send(f"Results: {str(results)[:3]}")
     await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
     
 
