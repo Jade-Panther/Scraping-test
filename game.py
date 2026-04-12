@@ -62,4 +62,22 @@ class NatGame(commands.Cog):
             session.taxa == session.taxa[num]['id']
 
         await ctx.send(f'Taxa: {session.taxa[:1000]}')
+
+    async def display_question(self, ctx):
+        session = self.sessions[ctx.author.id]
+
+        embeds = []
+
+        if(session.type == 'multiple choice'):
+            # Add the images
+            for i in range(4):
+                embed = discord.Embed(color=0x7D56E8)
+                embed.description = 'Question #' + str(i+1)
+
+                if i == 0:
+                    embed.title = 'Multiple Choice - Questions'
+
+                embeds.append(embed)
+
+        await ctx.send(embeds=embeds)
         
