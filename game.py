@@ -69,7 +69,7 @@ class NatGame(commands.Cog):
 
         async def button_callback(interaction):
             session.type = interaction.data['label']
-            self.init_game(session, ctx)
+            self.init_game(session)
             await interaction.response.send_message(
                 f"You clicked {interaction.data['custom_id']}",
                 ephemeral=True
@@ -118,7 +118,7 @@ class NatGame(commands.Cog):
 
         await ctx.send(embed=embed, view=view)
 
-    async def init_game(self, session, ctx):
+    async def init_game(self, session):
         if session.type == 'multiple choice':
             for _ in range(session.question_num):
                 session.questions.append({
