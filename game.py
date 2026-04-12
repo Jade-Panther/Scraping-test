@@ -47,6 +47,7 @@ class NatGame(commands.Cog):
             embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} [Link](www.inaturalist.org/taxa/{taxon.get('id')})\n"
 
         embed.description += 'Use !pick to choose which taxon to quiz'
+        await ctx.send(embed=embed)
 
         await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
 
@@ -60,10 +61,10 @@ class NatGame(commands.Cog):
 
         session = self.sessions[ctx.author.id]
 
+
         if isinstance(session.taxa, list):
             session.taxa = session.taxa[num]['id']
             
-
         await ctx.send(f'Taxa selected: {str(session.taxa)[:1000]}')
 
     async def display_question(self, ctx):
