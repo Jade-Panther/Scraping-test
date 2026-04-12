@@ -33,7 +33,7 @@ class NatGame(commands.Cog):
         })
 
         for taxon in results:
-            await ctx.send(f'Match: {taxon.get('matched_term')}')
+            await ctx.send(f'Match: {taxon.get("matched_term")}')
 
         await ctx.send(f'Taxa: {taxa}, Questions: {questions}')
 
