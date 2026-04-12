@@ -93,11 +93,15 @@ class NatGame(commands.Cog):
         embed.description += q['img_url']
 
         view = View(timeout=60)
+        if session.view is None:
+            session.view = View(timeout=60)
+        else:
+            session.view.clear_items()
 
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
-            async def callback(interaction, choice=choice, q=q, view=view):
+            async def callback(interaction, choice=choice, q=q):
                 print('Inside callback')
         
                 session.answered = True
@@ -118,10 +122,10 @@ class NatGame(commands.Cog):
                 
 
                 # Disable buttons
-                for item in view.children:
+                for item in session.view.children:
                     item.disabled = True
                 
-                await interaction.message.edit(view=view)
+                await interaction.message.edit(view=session.view)
                 await asyncio.sleep(1.5)
                 await self.next_question(ctx, session)
 
