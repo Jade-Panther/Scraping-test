@@ -50,8 +50,7 @@ class NatGame(commands.Cog):
         session = self.sessions[ctx.author.id]
 
         if session.taxon is None:
-            session.taxon = session.taxa_results[num]['id']
-
+            session.taxon = session.taxa_results[num]
 
         # Add the buttons for question type selection
         embed = discord.Embed(
@@ -70,11 +69,7 @@ class NatGame(commands.Cog):
                 session.type = mode
 
                 await self.init_game(session)
-
-                await interaction.response.send_message(
-                    f"Game mode set to {mode}",
-                    ephemeral=True
-                )
+                await ctx.send('Use !play to begin!')
 
             btn.callback = callback
             view.add_item(btn)
@@ -85,12 +80,16 @@ class NatGame(commands.Cog):
     @commands.command()
     async def play(self, ctx):
         session = self.sessions[ctx.author.id]
+        session.message = None
 
+        await self.render_question(ctx, session)
+
+    async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
 
         embed = discord.Embed(
             title=f"Question #{session.current_index+1}",
-            description='Pick the correct answer',
+            description="Pick the correct answer",
             color=0x7D56E8
         )
 
@@ -101,39 +100,85 @@ class NatGame(commands.Cog):
         for choice in q['choices']:
             btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
-            async def callback(interaction, choice=choice):
-                if q['choices'].index(choice) == q['answer']:
+            async def callback(interaction, choice=choice, q=q):
+                if getattr(session, 'answered', False):
+                    return await interaction.response.send_message("Already answered!", ephemeral=True)
+
+                session.answered = True
+
+                if choice == q['choices'][q['answer']]:
                     session.score += 1
                     await self.send_correct(ctx, q)
                 else:
                     await self.send_wrong(ctx, q)
 
-                if session.current_index < session.question_num-1:
-                    session.current_index += 1
-                else:
-                    await self.end_game(ctx, session)
-                await interaction.response.send_message(f"Selected {choice}", ephemeral=True)
+                # Disable buttons
+                for item in view.children:
+                    item.disabled = True
+
+                await interaction.message.edit(view=view)
+
+                # Go to next question
+                await self.next_question(ctx, session)
 
             btn.callback = callback
             view.add_item(btn)
 
-        await ctx.send(embed=embed, view=view)
+        # Send or edit message
+        if session.message is None:
+            session.message = await ctx.send(embed=embed, view=view)
+        else:
+            await session.message.edit(embed=embed, view=view)
+
+        session.answered = False
 
     async def init_game(self, session):
         if session.type == 'multiple choice':
             for _ in range(session.question_num):
-                session.questions.append({
-                    'img_url': 'https://inaturalist-open-data.s3.amazonaws.com/photos/404683762/large.jpg',
-                    'choices': ['blueberry (scientific)', 'blackberry', 'blueberry', 'blueberry'],
-                    'answer': 2,
-                    'answer_url': 'https://www.inaturalist.org/taxa/71261-Accipitriformes'
+                choices = []
+                obs = self.inat.get_observations({
+                    'taxon_id': session.taxon.get('id'),
+                    'quality_grade': 'research',
+                    'photos': True
                 })
+
+                # Get the species observations' taxon 
+                species = {}
+                for o in obs:
+                    tax = o['taxon']
+                    if tax['rank'] == 'species':
+                        species[tax['id']] = tax
+
+                # Add to choices and randomize
+                while len(choices) < 4:
+                    c = random.choice(list(species.values()))
+                    if c not in choices:
+                        choices.append(c)
+
+                random.shuffle(choices)
+
+                # Add the question
+                answer = random.randint(0, 3)
+                session.questions.append({
+                    'img_url': f"https://inaturalist-open-data.s3.amazonaws.com/photos/{answer['default_photo']}/original.jpg",
+                    'choices': [f"{choice['preferred_common_name'] or '-'} ({choice['name']})" for choice in choices],
+                    'answer': answer,
+                    'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer].id}"
+                })
+
+    async def next_question(self, ctx, session):
+        session.current_index += 1
+
+        if session.current_index >= len(session.questions):
+            return await self.end_game(ctx, session)
+
+        await self.render_question(ctx, session)
     
     async def send_correct(self, ctx, question):
         embed = discord.Embed(
             title='Correct!',
-            description=f"[Link]({question['answer_url']})",
-            color=0x7D56E8
+            description=f"[{question['choices'][question['answer']]}]({question['answer_url']})",
+            color=0x579E36
         )
         await ctx.send(embed=embed)
 

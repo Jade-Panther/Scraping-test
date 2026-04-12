@@ -23,21 +23,9 @@ class INatClient:
     def __init__(self):
         pass
 
-    def get_observations(self, lat, lon, radius_km, per_page=30, quality_grade='research'):
+    def get_observations(self, params):
         url = self.BASE_URL + '/observations'
-        params = {
-            'lat': lat,
-            'lng': lon,
-            'radius': radius_km,
-            'order_by': "observed_on",
-            'order': "desc",
-            'per_page': per_page,
-            'quality_grade': quality_grade,
-            'extra[]': ['taxon', 'observation_photos', 'conservation_status'],
-            "include": "taxon",
-            'fields': 'all'
-            # 'taxon_name': taxon_filter
-        }
+
         r = requests.get(url, params=params)
         r.raise_for_status()
         return r.json()['results']

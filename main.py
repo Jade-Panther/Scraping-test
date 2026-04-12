@@ -37,7 +37,16 @@ async def hi(ctx):
 
 @bot.command()
 async def info(ctx, radius=100):
-    rare_sightings = inat.filter_rare(inat.get_observations(lat, lng, radius))[:6]
+    rare_sightings = inat.filter_rare(inat.get_observations({
+            'lat': lat,
+            'lng': lng,
+            'radius': radius,
+            'order_by': 'observed_on',
+            'order': 'desc',
+            'per_page': 100,
+            'quality_grade': 'research',
+            'fields': 'all'
+        }))[:6]
 
     print(rare_sightings)
 
