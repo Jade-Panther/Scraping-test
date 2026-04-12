@@ -80,6 +80,13 @@ class NatGame(commands.Cog):
 
         await self.render_question(ctx, session)
 
+    @commands.command()
+    async def exit(self, ctx):
+        if self.sessions[ctx.author.id]:
+            del self.sessions[ctx.author.id]
+            
+            await ctx.send('Game exited')
+
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
 
