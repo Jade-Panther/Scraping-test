@@ -112,8 +112,9 @@ class NatGame(commands.Cog):
             return
         
         q = session.questions[session.current_index]
-        await ctx.send(fuzz.ratio(answer, q['ans']))
-        await self.send_response(session, fuzz.ratio(answer, q['ans']) > 80, q)
+        score = fuzz.ratio(answer.strip().lower(), q['answer'].strip().lower())
+        await ctx.send(score)
+        await self.send_response(session, score > 80, q)
 
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
