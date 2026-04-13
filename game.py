@@ -16,7 +16,9 @@ class NatGame(commands.Cog):
         
     @commands.command()
     async def game(self, ctx, *args):
-        *taxa_parts, questions = args
+        if len(args) < 2:
+            return await ctx.send('Usage: !game <search query> <number of questions>')
+        *taxa_parts, questions, diff = args
         taxa = ' '.join(taxa_parts)
 
         questions = int(questions)
@@ -28,20 +30,23 @@ class NatGame(commands.Cog):
 
         embed = discord.Embed(
             title='Choose a taxon',
-            description='Use the !pick command to select',
+            description='Use the !pick command to select\n',
             color=0x7D56E8
         )
 
         for i, taxon in enumerate(results):
             embed.description += f"{i+1}. {taxon.get('matched_term', 'No term found')} ([{taxon.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{taxon.get('id')}))\n"
 
-        self.sessions[ctx.author.id] = GameSession(results, questions)
+        self.sessions[ctx.author.id] = GameSession(results, questions, diff)
 
         
         await ctx.send(embed=embed)
 
     @commands.command()
     async def pick(self, ctx, num):
+        if not num:
+            return await ctx.send('Usage: !pick <number>')
+
         try: 
             num = int(num)
         except ValueError:
@@ -51,7 +56,7 @@ class NatGame(commands.Cog):
         session = self.sessions[ctx.author.id]
 
         if session.taxon is None:
-            session.taxon = session.taxa_results[num]
+            session.taxon = session.taxa_results[num - 1]
 
         # Add buttons for game types
         await ctx.send('Pick a Game Mode')
@@ -84,100 +89,134 @@ class NatGame(commands.Cog):
 
     @commands.command()
     async def exit(self, ctx):
-        if self.sessions[ctx.author.id]:
+        if ctx.author.id in self.sessions:
             del self.sessions[ctx.author.id]
             
             await ctx.send('Game exited')
 
+    @commands.command()
+    async def ans(self, ctx, answer):
+        session = self.sessions.get(ctx.author.id)
+        if not session:
+            return await ctx.send('Start a game first with !game')
+
+        
+        # Exit out on multiple choice
+        if session.type == 'multiple choice':
+            return
+        
+        q = session.questions[session.current_index]
+        await self.send_response(session, (answer == q.ans), q, View())
+
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
 
-        embed = discord.Embed(
-            title=f"Question #{session.current_index+1}",
-            description="Pick the correct answer",
-            color=0x7D56E8
-        )
+        if session.type == 'multiple choice':
+            embed = discord.Embed(
+                title=f"Question #{session.current_index+1}",
+                description="Pick the correct answer",
+                color=0x7D56E8
+            )
 
-        embed.set_image(url=q['img_url'])
-        embed.description += q['img_url']
+            embed.set_image(url=q['img_url'])
+            embed.description += q['img_url']
 
-        view = View(timeout=60)
-        
+            view = View(timeout=60)
+            for choice in q['choices']:
+                btn = Button(label=choice, style=discord.ButtonStyle.primary)
 
-        for choice in q['choices']:
-            btn = Button(label=choice, style=discord.ButtonStyle.primary)
-
-            async def callback(interaction, choice=choice, q=q):
-                print('Inside callback')
-        
-                session.answered = True
-                correct = (choice == q['choices'][q['answer']])
-
-                await interaction.response.defer(ephemeral=True)
+                async def callback(interaction, choice=choice, q=q):
+                    print('Inside callback')
+            
+                    session.answered = True
                 
-
-                if correct:
-                    session.score += 1
-
-                session.result_embed.title = "Correct!" if correct else "Wrong"
-                session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
-                session.result_embed.color = 0x579E36 if correct else 0xE86756
+                    await interaction.response.defer(ephemeral=True)
                     
-                await session.message.edit(embed=session.result_embed, view=view)
-                
+                    self.send_response(session, (choice == q['choices'][q['answer']]), q, view)
+                    
+                    # Disable buttons
+                    for item in view.children:
+                        item.disabled = True
+                    
+                    await interaction.message.edit(view=view)
+                    await asyncio.sleep(1.5)
+                    await self.next_question(ctx, session)
 
-                # Disable buttons
-                for item in view.children:
-                    item.disabled = True
-                
-                await interaction.message.edit(view=view)
-                await asyncio.sleep(1.5)
-                await self.next_question(ctx, session)
+                btn.callback = callback
+                view.add_item(btn)
 
-            btn.callback = callback
-            view.add_item(btn)
+            # Send or edit message
+            if session.message is None:
+                session.message = await ctx.send(embed=embed, view=view)
+            else:
+                await session.message.edit(embed=embed, view=view)
 
-        # Send or edit message
-        if session.message is None:
-            session.message = await ctx.send(embed=embed, view=view)
-        else:
-            await session.message.edit(embed=embed, view=view)
+            session.answered = False
+        elif session.type == 'free answer':
+            embed = discord.Embed(
+                title=f"Question #{session.current_index+1}",
+                description='Use the !ans command to answer',
+                color=0x7D56E8
+            )
 
-        session.answered = False
+            embed.set_image(url=q['img_url'])
+            embed.description += q['img_url']
+
+            session.message = await ctx.send(embed=embed)
+
 
     async def init_game(self, session):
+        choices = []
+        obs = self.inat.get_observations({
+            'taxon_id': session.taxon.get('id'),
+            'quality_grade': 'research',
+            'photos': True
+        })
+
+
+        # Get the species observations' taxon 
+        species = {}
+        for o in obs:
+            tax = o['taxon']
+            if tax['rank'] == 'species':
+                species[tax['id']] = tax
+
+        # Add to choices and randomize
+        while len(choices) < 4:
+            c = random.choice(list(species.values()))
+            if c not in choices and c.get('preferred_common_name'):
+                choices.append(c)
+
+        random.shuffle(choices)
+                
         if session.type == 'multiple choice':
-            for _ in range(session.question_num):
-                choices = []
-                obs = self.inat.get_observations({
-                    'taxon_id': session.taxon.get('id'),
-                    'quality_grade': 'research',
-                    'photos': True
-                })
-
-                # Get the species observations' taxon 
-                species = {}
-                for o in obs:
-                    tax = o['taxon']
-                    if tax['rank'] == 'species':
-                        species[tax['id']] = tax
-
-                # Add to choices and randomize
-                while len(choices) < 4:
-                    c = random.choice(list(species.values()))
-                    if c not in choices:
-                        choices.append(c)
-
-                random.shuffle(choices)
-
+            for i in range(session.question_num):
                 # Add the question
-                answer = random.randint(0, 3)
+                answer = i
                 session.questions.append({
                     'img_url': f"{choices[answer].get('default_photo').get('medium_url')}",
-                    'choices': [f"{choice['preferred_common_name'] or '-'} ({choice['name']})" for choice in choices],
+                    'choices': [f"{choice.get('preferred_common_name', '-')} ({choice['name']})" if session.diff == 'easy' else f"{choice['name']}" for choice in choices],
                     'answer': answer,
                     'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
                 })
+        elif session.type == 'free answer':
+            for i in range(session.question_num):
+                answer = i
+                session.questions.append({
+                    'img_url': f"{choices[answer].get('default_photo').get('medium_url')}",
+                    'answer': answer,
+                    'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
+                })
+
+    async def send_response(self, session, correct, q=None, view=None):
+        if correct:
+            session.score += 1
+
+            session.result_embed.title = "Correct!" if correct else "Wrong"
+            session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
+            session.result_embed.color = 0x579E36 if correct else 0xE86756
+                        
+            await session.message.edit(embed=session.result_embed, view=view)
 
     async def next_question(self, ctx, session):
         session.current_index += 1
