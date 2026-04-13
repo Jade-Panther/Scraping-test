@@ -111,7 +111,7 @@ class NatGame(commands.Cog):
             return
         
         q = session.questions[session.current_index]
-        await self.send_response(session, (answer == q.ans), q, View())
+        await self.send_response(session, (answer == q['ans']), q, View())
 
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
