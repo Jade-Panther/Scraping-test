@@ -101,7 +101,7 @@ class NatGame(commands.Cog):
             await ctx.send('Game exited')
 
     @commands.command()
-    async def ans(self, ctx, answer):
+    async def ans(self, ctx, *, answer):
         session = self.sessions.get(ctx.author.id)
         if not session:
             return await ctx.send('Start a game first with !game')
