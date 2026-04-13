@@ -197,7 +197,7 @@ class NatGame(commands.Cog):
         if session.type == 'multiple choice':
             for i in range(session.question_num):
                 # Add the question
-                answer = random.randint(0, len(choices))
+                answer = random.randint(0, len(choices)-1)
                 session.questions.append({
                     'img_url': f"{choices[answer].get('default_photo').get('medium_url')}",
                     'choices': [f"{choice.get('preferred_common_name', '-')} ({choice['name']})" if session.diff == 'easy' else f"{choice['name']}" for choice in choices],
@@ -206,7 +206,7 @@ class NatGame(commands.Cog):
                 })
         elif session.type == 'free answer':
             for i in range(session.question_num):
-                answer = random.randint(0, len(choices))
+                answer = random.randint(0, len(choices)-1)
                 session.questions.append({
                     'img_url': f"{choices[answer].get('default_photo').get('medium_url')}",
                     'answer': answer,
