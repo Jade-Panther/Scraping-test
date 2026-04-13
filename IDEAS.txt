@@ -7,6 +7,11 @@ INAT: https://api.inaturalist.org/v2/docs/
 
 QUIZ IDEAS:
 
+Multiplayer (first to guess)
+Leaderboard
+stats for user
+better random
+
 Guess the species
 - Show image
 - User picks correct name
