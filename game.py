@@ -154,7 +154,12 @@ class NatGame(commands.Cog):
             if session.message is None:
                 session.message = await ctx.send(embed=embed, view=view)
             else:
-                await session.message.edit(embed=embed, view=view)
+                try:
+                    await session.message.edit(embed=embed, view=view)
+                except discord.errors.DiscordServerError:
+                    await ctx.send('Discord is having issues, retrying...')
+                    await asyncio.sleep(1)
+                    await session.message.edit(embed=embed, view=view)
 
             session.answered = False
         elif session.type == 'free answer':

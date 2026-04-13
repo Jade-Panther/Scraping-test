@@ -113,7 +113,10 @@ async def randomSpecies(ctx):
 
     await ctx.send(embed=embed)
 
-    
+@bot.command()
+async def lb(ctx):
+    pass
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
