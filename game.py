@@ -18,9 +18,14 @@ class NatGame(commands.Cog):
     async def game(self, ctx, *args):
         if len(args) < 2:
             return await ctx.send('Usage: !game <search query> <number of questions>')
-        *taxa_parts, questions, diff = args
-        taxa = ' '.join(taxa_parts)
+        
+        if len(args) >= 3:
+            *taxa_parts, questions, diff = args
+        else:
+            *taxa_parts, questions = args
+            diff = 'easy'
 
+        taxa = ' '.join(taxa_parts)
         questions = int(questions)
 
         results = [
