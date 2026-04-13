@@ -137,7 +137,7 @@ class NatGame(commands.Cog):
                 
                     await interaction.response.defer(ephemeral=True)
                     
-                    self.send_response(session, (choice == q['choices'][q['answer']]), q, view)
+                    await self.send_response(session, (choice == q['choices'][q['answer']]), q)
                     
                     # Disable buttons
                     for item in view.children:
@@ -213,15 +213,15 @@ class NatGame(commands.Cog):
                     'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
                 })
 
-    async def send_response(self, session, correct, q=None, view=None):
+    async def send_response(self, session, correct, q=None):
         if correct:
             session.score += 1
 
-            session.result_embed.title = "Correct!" if correct else "Wrong"
-            session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
-            session.result_embed.color = 0x579E36 if correct else 0xE86756
+        session.result_embed.title = "Correct!" if correct else "Wrong"
+        session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
+        session.result_embed.color = 0x579E36 if correct else 0xE86756
                         
-            await session.message.edit(embed=session.result_embed, view=view)
+        await session.message.edit(embed=session.result_embed)
 
     async def next_question(self, ctx, session):
         session.current_index += 1
