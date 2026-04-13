@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ui import Button, View
 from suggestion import *
 from game_session import *
+from rapidfuzz import fuzz
 
 import random
 import discord
@@ -111,7 +112,8 @@ class NatGame(commands.Cog):
             return
         
         q = session.questions[session.current_index]
-        await self.send_response(session, (answer == q['ans']), q, View())
+        await ctx.send(fuzz.ratio(answer, q['ans']))
+        await self.send_response(session, fuzz.ratio(answer, q['ans']) > 80, q)
 
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
