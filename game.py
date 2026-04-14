@@ -111,10 +111,11 @@ class NatGame(commands.Cog):
         if session.type == 'multiple choice':
             return
         
+        # Get the score for the bot
         q = session.questions[session.current_index]
         score = fuzz.ratio(answer.strip().lower(), q['answer'].strip().lower())
         await ctx.send(score)
-        await self.send_response(session, score > 80, q)
+        await self.send_response(session, score > 80, q, '')
 
     async def render_question(self, ctx, session):
         q = session.questions[session.current_index]
@@ -140,7 +141,7 @@ class NatGame(commands.Cog):
                 
                     await interaction.response.defer(ephemeral=True)
                     
-                    await self.send_response(session, (choice == q['choices'][q['answer']]), q)
+                    await self.send_response(session, (choice == q['choices'][q['answer']]), q, f"{q['choices'][q['answer']]}]({q['answer_url']})")
                     
                     # Disable buttons
                     for item in view.children:
@@ -221,12 +222,12 @@ class NatGame(commands.Cog):
                     'answer_url': f"https://www.inaturalist.org/taxa/{choices[answer]['id']}"
                 })
 
-    async def send_response(self, session, correct, q=None):
+    async def send_response(self, session, correct, q=None, url=''):
         if correct:
             session.score += 1
 
         session.result_embed.title = "Correct!" if correct else "Wrong"
-        session.result_embed.description = f"[{q['choices'][q['answer']]}]({q['answer_url']})"
+        session.result_embed.description = f"{url}"
         session.result_embed.color = 0x579E36 if correct else 0xE86756
                         
         await session.message.edit(embed=session.result_embed)
