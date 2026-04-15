@@ -117,7 +117,7 @@ class Naturalist(commands.Cog):
             await ctx.send(f"Error fetching species: {e}")
 
     @app_commands.command(name="setlocation", description="Set your location")
-    async def setlocation(self, interaction, lat, lng):
+    async def setlocation(self, interaction: discord.Interaction, lat: float, lng: float):
         await self.bot.db.set_location(str(interaction.user.id), lat, lng)
 
         await interaction.response.send_message(

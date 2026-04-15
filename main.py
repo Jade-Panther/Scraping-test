@@ -48,7 +48,6 @@ class DiscordBot(commands.Bot):
 
         await self.tree.sync()
 
-
     async def on_message(self, message):
         if message.author == self.user:
             return
@@ -57,6 +56,9 @@ class DiscordBot(commands.Bot):
             await message.author.send('Pong! (DM)')
 
         await self.process_commands(message)
+
+    async def on_ready():
+        print(f"Logged in as {self.user}")
 
 bot = DiscordBot()
 bot.run(TOKEN)
