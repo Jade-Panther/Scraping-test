@@ -11,11 +11,9 @@ import asyncio
 class NatGame(commands.Cog):
     def __init__(self, bot, inat):
         self.bot = bot
-        self.inat = inat
+        self.inat = self.bot.inat
         self.game_types = ['multiple choice', 'free answer']
         self.sessions = {}
-
-    
         
     @commands.command()
     async def game(self, ctx, *args):

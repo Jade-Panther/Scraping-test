@@ -9,7 +9,7 @@ from helpers.naturalist import INatClient
 class Naturalist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.inat = INatClient()
+        self.inat = self.bot.inat
 
         self.lat = 39.1928853
         self.lng = -76.7241371

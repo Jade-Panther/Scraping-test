@@ -12,10 +12,6 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 USER_ID = int(os.getenv("USER_ID"))
 
-inat = INatClient()
-lat, lng = 39.1928853, -76.7241371
-radius = 100
-
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -27,6 +23,7 @@ class DiscordBot(commands.Bot):
             intents=intents,
         )
         self.db = DataManager(f"{os.path.realpath(os.path.dirname(__file__))}/database/data.db")
+        self.inat = INatClient()
 
     async def setup_hook(self):
         """
