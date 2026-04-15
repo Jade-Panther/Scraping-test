@@ -14,6 +14,8 @@ class NatGame(commands.Cog):
         self.inat = inat
         self.game_types = ['multiple choice', 'free answer']
         self.sessions = {}
+
+    
         
     @commands.command()
     async def game(self, ctx, *args):
@@ -253,3 +255,5 @@ class NatGame(commands.Cog):
 
             
         
+async def setup(bot):
+    await bot.add_cog(NatGame(bot))

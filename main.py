@@ -57,8 +57,12 @@ class DiscordBot(commands.Bot):
 
         await self.process_commands(message)
 
-    async def on_ready():
+    async def on_ready(self):
         print(f"Logged in as {self.user}")
 
 bot = DiscordBot()
 bot.run(TOKEN)
+
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
