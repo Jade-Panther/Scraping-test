@@ -26,7 +26,7 @@ class DiscordBot(commands.Bot):
             command_prefix="!",
             intents=intents,
         )
-        self.db = DataManager()
+        self.db = DataManager(f"{os.path.realpath(os.path.dirname(__file__))}/database/data.db")
 
     async def setup_hook(self):
         """
