@@ -75,7 +75,6 @@ class Naturalist(commands.Cog):
         """
         Get a species/taxa from iNaturalist
         """
-
         await interaction.response.defer()
 
         data = {
