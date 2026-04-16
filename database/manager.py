@@ -31,12 +31,20 @@ class DataManager:
         """)
 
     async def add_score(self, guild_id, user_id, score):
-        await self.db.execute("""
-        INSERT INTO scores (guild_id, user_id, score)
-        VALUES (?, ?, ?)
-        ON CONFLICT(guild_id, user_id)
-        DO UPDATE SET score = score + ?
-        """, (guild_id, user_id, score, score))
+        if guild_id:
+            await self.db.execute("""
+            INSERT INTO scores (guild_id, user_id, score)
+            VALUES (?, ?, ?)
+            ON CONFLICT(guild_id, user_id)
+            DO UPDATE SET score = score + ?
+            """, (guild_id, user_id, score, score))
+        else:
+            await self.db.execute("""
+            INSERT INTO scores (guild_id, user_id, score)
+            VALUES (?, ?, ?)
+            ON CONFLICT(guild_id, user_id)
+            DO UPDATE SET score = score + ?
+            """, ('DM', user_id, score, score))
 
     async def get_leaderboard(self, guild_id, limit=10):
         cursor = await self.db.execute("""
@@ -48,6 +56,15 @@ class DataManager:
         """, (guild_id, limit))
 
         return await cursor.fetchall()
+    
+    async def get_score(self, guild_id, user_id):
+        cursor = await self.db.execute("""
+        SELECT user_id, score
+        FROM scores
+        WHERE guild_id = ? AND user_id = ?
+        """, (guild_id, user_id))
+
+        return await cursor.fetchone()
     
     async def set_location(self, user_id, lat, lng):
         await self.db.execute("""

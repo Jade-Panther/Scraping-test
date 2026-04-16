@@ -55,6 +55,10 @@ class Naturalist(commands.Cog):
                 species_name = obs.get("species_guess", "Unknown species")
                 obs_id = obs.get("id")
 
+                embed.set_author(
+                    name=f"{ctx.author}",
+                    icon_url=ctx.author.display_avatar.url
+                )
                 embed.add_field(
                     name=species_name,
                     value=f"[View Observation](https://www.inaturalist.org/observations/{obs_id})",
@@ -65,6 +69,12 @@ class Naturalist(commands.Cog):
 
         except Exception as e:
             await ctx.send(f"Error fetching data: {e}")
+
+    @app_commands.command(name="fetchspec", description="Get data on a species ")
+    async def fetch_species(self, search):
+        """
+        Get a species from inat
+        """
 
     @commands.command(name="randomspecies")
     async def random_species(self, ctx):
@@ -100,6 +110,10 @@ class Naturalist(commands.Cog):
                 title=name,
                 description=summary[:2000],
                 color=0x7D56E8
+            )
+            embed.set_author(
+                name=f"{ctx.author}",
+                icon_url=ctx.author.display_avatar.url
             )
 
             embed.add_field(

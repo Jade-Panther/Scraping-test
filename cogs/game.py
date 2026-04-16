@@ -13,6 +13,11 @@ class NatGame(commands.Cog):
         self.bot = bot
         self.inat = self.bot.inat
         self.game_types = ['multiple choice', 'free answer']
+        self.diff_mult = {
+            'easy': 1,
+            'medium': 2,
+            'hard': 4
+        }
         self.sessions = {}
         
     @commands.command()
@@ -38,6 +43,10 @@ class NatGame(commands.Cog):
             title='Choose a taxon',
             description='Use the !pick command to select\n',
             color=0x7D56E8
+        )
+        embed.set_author(
+            name=f"{ctx.author}",
+            icon_url=ctx.author.display_avatar.url
         )
 
         for i, taxon in enumerate(results):
@@ -79,20 +88,16 @@ class NatGame(commands.Cog):
                 session.result_embed = discord.Embed(color=0x579E36)
                 
                 await self.init_game(session)
-                await interaction.followup.send(f"Use !play to begin!")
+                session = self.sessions[ctx.author.id]
+                session.message = None
 
+                await self.render_question(ctx, session)
             btn.callback = callback
             view.add_item(btn)
 
         await ctx.send(view=view)
 
-    @commands.command()
-    async def play(self, ctx):
-        session = self.sessions[ctx.author.id]
-        session.message = None
-
-        await self.render_question(ctx, session)
-
+    
     @commands.command()
     async def exit(self, ctx):
         if ctx.author.id in self.sessions:
@@ -127,6 +132,10 @@ class NatGame(commands.Cog):
                 title=f"Question #{session.current_index+1}",
                 description="Pick the correct answer",
                 color=0x7D56E8
+            )
+            embed.set_author(
+                name=f"{ctx.author}",
+                icon_url=ctx.author.display_avatar.url
             )
 
             embed.set_image(url=q['img_url'])
@@ -174,12 +183,15 @@ class NatGame(commands.Cog):
                 description='Use the !ans command to answer',
                 color=0x7D56E8
             )
+            embed.set_author(
+                name=f"{ctx.author}",
+                icon_url=ctx.author.display_avatar.url
+            )
 
             embed.set_image(url=q['img_url'])
             embed.description += q['img_url']
 
             session.message = await ctx.send(embed=embed)
-
 
     async def init_game(self, session):
         choices = []
@@ -248,10 +260,18 @@ class NatGame(commands.Cog):
             description='Use the !play command to play again or !game to play a different one',
             color=0x566CE8
         )
+        accuracy = session.score / session.question_num
+        base = session.question_num * (self.diff_mult.get(session.diff, 1))
+
+        if ctx.guild:
+            await self.bot.db.add_score(ctx.guild.id, ctx.author.id, int(base * accuracy))
+        else:
+            await self.bot.db.add_score(None, ctx.author.id, int(base * accuracy))
+        
         session.reset()
         await ctx.send(embed=embed)
 
-            
+    
         
 async def setup(bot):
     await bot.add_cog(NatGame(bot))

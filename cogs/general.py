@@ -22,6 +22,7 @@ class General(commands.Cog):
     @commands.command()
     async def lb(self, ctx):
         if ctx.guild is None:
+            score = await self.bot.db.get_score('DM', ctx.author.id)
             embed = discord.Embed(
                 title="No leaderboard available",
                 description=f"You must be in a server",
@@ -34,10 +35,9 @@ class General(commands.Cog):
                 color=0xE5AC12,
             )
             embed.set_author(
-                name=f"{ctx.author} Leaderboard",
+                name=f"{ctx.author}",
                 icon_url=ctx.author.display_avatar.url
             )
-            embed.set_thumbnail(url=ctx.author.display_avatar.url)
 
             leaderboard = await self.bot.db.get_leaderboard(ctx.guild.id)
             medals = ["🥇", "🥈", "🥉"]
@@ -48,7 +48,6 @@ class General(commands.Cog):
                 medal = medals[i - 1] if i <= 3 else f"{i}."
 
                 embed.description += f"{medal} {username} - {score} pts\n"
-            await ctx.send(leaderboard)
         await ctx.send(embed=embed)
 
 async def setup(bot):
