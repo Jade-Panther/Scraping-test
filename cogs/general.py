@@ -30,10 +30,18 @@ class General(commands.Cog):
         else:
             embed = discord.Embed(
                 title="Server Leaderboard",
-                description=f"Top 10 identifiers",
+                description=f"Top 10 identifiers\n",
                 color=0xE5AC12,
             )
+            embed.set_author(
+                name=f"{ctx.author} Leaderboard",
+                icon_url=ctx.author.display_avatar.url
+            )
+
+            embed.set_thumbnail(url=ctx.author.display_avatar.url)
             leaderboard = self.bot.db.get_leaderboard(ctx.guild.id)
+            for i, user_id, score in enumerate(leaderboard):
+                embed.description += f"{i + 1}. {score} - {user_id}"
             await ctx.send(leaderboard)
         await ctx.send(embed=embed)
 
