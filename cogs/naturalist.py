@@ -70,11 +70,48 @@ class Naturalist(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error fetching data: {e}")
 
-    @app_commands.command(name="fetchspec", description="Get data on a species ")
-    async def fetch_species(self, search):
+    @app_commands.command(name="search", description="Get data on a species")
+    async def search(self, interaction: discord.Interaction, search: str, rank: str = "species", results: int = 10):
         """
-        Get a species from inat
+        Get a species/taxa from iNaturalist
         """
+
+        await interaction.response.defer()
+
+        data = {
+            "q": search,
+            "per_page": results,
+            "order_by": "created_at",
+            "order": "desc",
+            "rank": rank
+        }
+
+        observations = self.inat.get_taxons(data)
+        if not observations:
+            return await interaction.followup.send("No results found.")
+
+        embed = discord.Embed(
+            title=f"🔎 Results for {search}",
+            color=0x2ECC71
+        )
+        embed.set_author(
+            name=str(interaction.user),
+            icon_url=interaction.user.display_avatar.url
+        )
+
+        for obs in observations[:results]:
+            name = obs.get("preferred_common_name") or obs.get("name")
+            obs_id = obs.get("id")
+
+            embed.add_field(
+                name=name,
+                value=f"[View](https://www.inaturalist.org/taxa/{obs_id})",
+                inline=False
+            )
+
+        await interaction.followup.send(embed=embed)
+
+    
 
     @commands.command(name="randomspecies")
     async def random_species(self, ctx):
