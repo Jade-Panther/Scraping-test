@@ -21,9 +21,7 @@ class General(commands.Cog):
 
     @commands.command()
     async def lb(self, ctx):
-        guild_id = ctx.guild.id
-
-        if guild_id is None:
+        if ctx.guild is None:
             embed = discord.Embed(
                 title="No leaderboard available",
                 description=f"You must be in a server",
@@ -35,7 +33,7 @@ class General(commands.Cog):
                 description=f"Top 10 identifiers",
                 color=0xE5AC12,
             )
-            leaderboard = self.bot.db.get_leaderboard(guild_id)
+            leaderboard = self.bot.db.get_leaderboard(ctx.guild.id)
             await ctx.send(leaderboard)
         await ctx.send(embed=embed)
 
