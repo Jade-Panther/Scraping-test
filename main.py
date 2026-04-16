@@ -37,11 +37,6 @@ class DiscordBot(commands.Bot):
                 await self.load_extension(f"cogs.{file[:-3]}")
                 print(f"Loaded cog: {file}")
 
-        self.database = DataManager(
-            connection=await aiosqlite.connect(
-                f"{os.path.realpath(os.path.dirname(__file__))}/database/data.db"
-            )
-        )
 
         await self.tree.sync()
 
