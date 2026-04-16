@@ -40,8 +40,8 @@ class General(commands.Cog):
 
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
             leaderboard = self.bot.db.get_leaderboard(ctx.guild.id)
-            for i, user_id, score in enumerate(leaderboard):
-                embed.description += f"{i + 1}. {score} - {user_id}"
+            for i, (user_id, score) in enumerate(leaderboard, start=1):
+                embed.description += f"{i}. <@{user_id}> - {score} points\n"
             await ctx.send(leaderboard)
         await ctx.send(embed=embed)
 
