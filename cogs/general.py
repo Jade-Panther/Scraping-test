@@ -39,7 +39,7 @@ class General(commands.Cog):
             )
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
 
-            leaderboard = await self.db.get_leaderboard(ctx.guild.id)
+            leaderboard = await self.bot.db.get_leaderboard(ctx.guild.id)
             medals = ["🥇", "🥈", "🥉"]
             for i, (user_id, score) in enumerate(leaderboard, start=1):
                 member = ctx.guild.get_member(int(user_id))
@@ -47,7 +47,7 @@ class General(commands.Cog):
 
                 medal = medals[i - 1] if i <= 3 else f"{i}."
 
-                embed.description += f"{medal} {username} — {score} pts\n"
+                embed.description += f"{medal} {username} - {score} pts\n"
             await ctx.send(leaderboard)
         await ctx.send(embed=embed)
 
