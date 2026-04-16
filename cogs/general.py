@@ -25,7 +25,7 @@ class General(commands.Cog):
             score = await self.bot.db.get_score('DM', ctx.author.id)
             embed = discord.Embed(
                 title="No leaderboard available",
-                description=f"You must be in a server",
+                description=f"Your score: {score}",
                 color=0xE5AC12,
             )
         else:

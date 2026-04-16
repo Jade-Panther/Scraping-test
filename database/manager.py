@@ -59,7 +59,7 @@ class DataManager:
     
     async def get_score(self, guild_id, user_id):
         cursor = await self.db.execute("""
-        SELECT user_id, score
+        SELECT score
         FROM scores
         WHERE guild_id = ? AND user_id = ?
         """, (guild_id, user_id))
