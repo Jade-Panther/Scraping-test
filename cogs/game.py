@@ -9,7 +9,7 @@ import discord
 import asyncio
 
 class NatGame(commands.Cog):
-    def __init__(self, bot, inat):
+    def __init__(self, bot):
         self.bot = bot
         self.inat = self.bot.inat
         self.game_types = ['multiple choice', 'free answer']
