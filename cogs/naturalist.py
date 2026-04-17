@@ -99,14 +99,10 @@ class Naturalist(commands.Cog):
             icon_url=interaction.user.display_avatar.url
         )
 
-        for tax in results[:number]:
+        for i, tax in enumerate(results[:number]):
             name = tax.get("preferred_common_name") or tax.get("name")
             
-            embed.add_field(
-                name=name,
-                value=f"([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))",
-                inline=False
-            )
+            embed.description += f"{i + 1}. ([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))"
         self.search_results[interaction.user.id] = results
 
         await interaction.followup.send(embed=embed)
@@ -141,19 +137,49 @@ class Naturalist(commands.Cog):
             taxon = results[0]
 
         taxon_id = taxon["id"]
+        taxon = self.inat.get_taxon_by_id(taxon_id)
+
+        image_url = None
+        photo = taxon.get("default_photo")
+
+        if photo:
+            image_url = photo.get("medium_url") or photo.get("url")
+
+        obs = self.inat.get_observations({
+            "taxon_id": taxon["id"],
+            "per_page": 0
+        })
+        count = obs.get("total_results", 0)
 
         embed = discord.Embed(
             title=taxon.get("preferred_common_name") or taxon["name"],
-            description=f"**Scientific:** {taxon['name']}",
-            color=0x12E5B7
+            description="Species profile from iNaturalist",
+            color=0x2ECC71,
+            url=f"https://www.inaturalist.org/taxa/{taxon['id']}"
         )
 
-        embed.add_field(name="Rank", value=taxon.get("rank", "Unknown"))
         embed.add_field(
-            name="Link",
-            value=f"https://www.inaturalist.org/taxa/{taxon_id}",
+            name="🔬 Scientific Name",
+            value=taxon["name"],
             inline=False
         )
+
+        embed.add_field(
+            name="📊 Rank",
+            value=taxon.get("rank", "Unknown"),
+            inline=True
+        )
+
+        embed.add_field(
+            name="👀 Observations",
+            value=str(count),
+            inline=True
+        )
+
+        if image_url:
+            embed.set_image(url=image_url)
+
+        embed.set_footer(text="Data from iNaturalist")
 
         await interaction.followup.send(embed=embed)
     
@@ -197,7 +223,6 @@ class Naturalist(commands.Cog):
                 name=f"{ctx.author}",
                 icon_url=ctx.author.display_avatar.url
             )
-
             embed.add_field(
                 name=scientific,
                 value=f"[View Taxon](https://www.inaturalist.org/taxa/{species.get('id')})",
