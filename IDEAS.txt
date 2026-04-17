@@ -7,7 +7,7 @@ INAT: https://api.inaturalist.org/v2/docs/
 
 QUIZ IDEAS:
 
-Conver game to slash /
+Convert game to slash /
 Multiplayer (first to guess)
 test leaderboard
 stats for user

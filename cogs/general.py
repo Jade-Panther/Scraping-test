@@ -18,6 +18,11 @@ class General(commands.Cog):
     async def hi(self, ctx):
         await ctx.send(f"Hello {ctx.author.name}!")
 
+    @commands.command()
+    async def fun(self, ctx):
+        data = self.db.get_location(ctx.author.id)
+        await ctx.send(f"{data[0]}")
+
 
     @commands.command()
     async def lb(self, ctx):
