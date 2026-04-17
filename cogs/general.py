@@ -20,7 +20,7 @@ class General(commands.Cog):
 
     @commands.command()
     async def fun(self, ctx):
-        data = self.db.get_location(ctx.author.id)
+        data = self.bot.db.get_location(ctx.author.id)
         await ctx.send(f"{data[0]}")
 
 
