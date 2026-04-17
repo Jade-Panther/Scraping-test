@@ -92,7 +92,7 @@ class Naturalist(commands.Cog):
 
         embed = discord.Embed(
             title=f"🔎 Results for {search}",
-            description="",
+            description="\n",
             color=0x2ECC71
         )
         embed.set_author(
@@ -103,7 +103,7 @@ class Naturalist(commands.Cog):
         for i, tax in enumerate(results[:number]):
             name = tax.get("preferred_common_name") or tax.get("name")
             
-            embed.description += f"{i + 1}. ([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))"
+            embed.description += f"{i + 1}. ([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))\n"
         self.search_results[interaction.user.id] = results
 
         await interaction.followup.send(embed=embed)
@@ -142,15 +142,9 @@ class Naturalist(commands.Cog):
 
         image_url = None
         photo = taxon.get("default_photo")
-
         if photo:
             image_url = photo.get("medium_url") or photo.get("url")
 
-        obs = self.inat.get_observations({
-            "taxon_id": taxon["id"],
-            "per_page": 0
-        })
-        count = obs.get("total_results", 0)
 
         embed = discord.Embed(
             title=taxon.get("preferred_common_name") or taxon["name"],
@@ -160,7 +154,7 @@ class Naturalist(commands.Cog):
         )
 
         embed.add_field(
-            name="🔬 Scientific Name",
+            name=taxon.get('preferred_common_name', '-'),
             value=taxon["name"],
             inline=False
         )
@@ -173,9 +167,17 @@ class Naturalist(commands.Cog):
 
         embed.add_field(
             name="👀 Observations",
-            value=str(count),
+            value=taxon.get('observations_count'),
             inline=True
         )
+
+        if taxon.get("extinct"):
+            embed.add_field(
+                name="EXTINCT",
+                value=" ",
+                inline=True
+            )
+        
 
         if image_url:
             embed.set_image(url=image_url)
