@@ -30,6 +30,8 @@ class DataManager:
         )
         """)
 
+        await self.db.commit()
+
     async def add_score(self, guild_id, user_id, score):
         if guild_id:
             await self.db.execute("""
@@ -45,6 +47,8 @@ class DataManager:
             ON CONFLICT(guild_id, user_id)
             DO UPDATE SET score = score + ?
             """, ('DM', user_id, score, score))
+
+        await self.db.commit()
 
     async def get_leaderboard(self, guild_id, limit=10):
         cursor = await self.db.execute("""

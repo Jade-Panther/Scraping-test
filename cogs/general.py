@@ -20,8 +20,12 @@ class General(commands.Cog):
 
     @commands.command()
     async def fun(self, ctx):
-        data = self.bot.db.get_location(ctx.author.id)
-        await ctx.send(f"{data[0]}")
+        data = await self.bot.db.get_location(ctx.author.id)
+    
+        if data is None:
+            await ctx.send("No location set.")
+        else:
+            await ctx.send(f"Latitude: {data[0]}, Longitude: {data[1]}")
 
 
     @commands.command()
