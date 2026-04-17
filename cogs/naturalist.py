@@ -104,7 +104,7 @@ class Naturalist(commands.Cog):
             
             embed.add_field(
                 name=name,
-                value=f"([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get("id")}))",
+                value=f"([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))",
                 inline=False
             )
         self.search_results[interaction.user.id] = results
