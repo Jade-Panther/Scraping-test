@@ -80,7 +80,7 @@ class Naturalist(commands.Cog):
 
         data = {
             "q": search,
-            "per_page": results,
+            "per_page": number,
             "order_by": "taxon_name",
             "order": "desc",
             "rank": rank
