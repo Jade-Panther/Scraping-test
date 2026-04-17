@@ -72,7 +72,7 @@ class Naturalist(commands.Cog):
             await ctx.send(f"Error fetching data: {e}")
 
     @app_commands.command(name="search", description="Searches database for taxa/species matching query")
-    async def search(self, interaction: discord.Interaction, search: str, rank: str = "species", number: int = 10):
+    async def search(self, interaction: discord.Interaction, search: str, rank: str, number: int = 10):
         """
         Search for a species/taxa from iNaturalist
         """
@@ -105,6 +105,8 @@ class Naturalist(commands.Cog):
             
             embed.description += f"{i + 1}. ([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))\n"
         self.search_results[interaction.user.id] = results
+
+        embed.set_footer(text="Not seeing results? Adjust taxon rank or increase number shown")
 
         await interaction.followup.send(embed=embed)
 
@@ -148,7 +150,6 @@ class Naturalist(commands.Cog):
 
         embed = discord.Embed(
             title=taxon.get("preferred_common_name") or taxon["name"],
-            description="Species profile from iNaturalist",
             color=0x2ECC71,
             url=f"https://www.inaturalist.org/taxa/{taxon['id']}"
         )
