@@ -7,10 +7,11 @@ INAT: https://api.inaturalist.org/v2/docs/
 
 QUIZ IDEAS:
 
+Conver game to slash /
 Multiplayer (first to guess)
-Leaderboard
+test leaderboard
 stats for user
-better random
+get rare within radius using location
 
 Guess the species
 - Show image

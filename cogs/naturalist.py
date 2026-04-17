@@ -103,7 +103,7 @@ class Naturalist(commands.Cog):
         for i, tax in enumerate(results[:number]):
             name = tax.get("preferred_common_name") or tax.get("name")
             
-            embed.description += f"{i + 1}. ([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get('id')}))\n"
+            embed.description += f"{i + 1}. ([{name}](https://www.inaturalist.org/taxa/{tax.get('id')}))\n"
         self.search_results[interaction.user.id] = results
 
         embed.set_footer(text="Not seeing results? Adjust taxon rank or increase number shown")

@@ -255,18 +255,21 @@ class NatGame(commands.Cog):
         await self.render_question(ctx, session)
 
     async def end_game(self, ctx, session):
-        embed = discord.Embed(
-            title=f"You got {session.score}/{session.question_num} Correct! ",
-            description='Use the !play command to play again or !game to play a different one',
-            color=0x566CE8
-        )
+        
         accuracy = session.score / session.question_num
         base = session.question_num * (self.diff_mult.get(session.diff, 1))
+        score = int(base * accuracy)
 
         if ctx.guild:
-            await self.bot.db.add_score(ctx.guild.id, ctx.author.id, int(base * accuracy))
+            await self.bot.db.add_score(ctx.guild.id, ctx.author.id, score)
         else:
-            await self.bot.db.add_score(None, ctx.author.id, int(base * accuracy))
+            await self.bot.db.add_score(None, ctx.author.id, score)
+
+        embed = discord.Embed(
+            title=f"You got {session.score}/{session.question_num} Correct! ",
+            description=f"**Score**: {score}  -  Use the !play command to play again or !game to play a different one",
+            color=0x566CE8
+        )
         
         session.reset()
         await ctx.send(embed=embed)
