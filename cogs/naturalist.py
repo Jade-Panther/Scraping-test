@@ -10,6 +10,7 @@ class Naturalist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.inat = self.bot.inat
+        self.search_results = {}
 
         self.lat = 39.1928853
         self.lng = -76.7241371
@@ -70,23 +71,23 @@ class Naturalist(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error fetching data: {e}")
 
-    @app_commands.command(name="search", description="Get data on a species")
-    async def search(self, interaction: discord.Interaction, search: str, rank: str = "species", results: int = 10):
+    @app_commands.command(name="search", description="Searches database for taxa/species matching query")
+    async def search(self, interaction: discord.Interaction, search: str, rank: str = "species", number: int = 10):
         """
-        Get a species/taxa from iNaturalist
+        Search for a species/taxa from iNaturalist
         """
         await interaction.response.defer()
 
         data = {
             "q": search,
             "per_page": results,
-            "order_by": "created_at",
+            "order_by": "taxon_name",
             "order": "desc",
             "rank": rank
         }
 
-        observations = self.inat.get_taxons(data)
-        if not observations:
+        results = self.inat.get_taxons(data)
+        if not results:
             return await interaction.followup.send("No results found.")
 
         embed = discord.Embed(
@@ -98,18 +99,63 @@ class Naturalist(commands.Cog):
             icon_url=interaction.user.display_avatar.url
         )
 
-        for obs in observations[:results]:
-            name = obs.get("preferred_common_name") or obs.get("name")
-            obs_id = obs.get("id")
-
+        for tax in results[:number]:
+            name = tax.get("preferred_common_name") or tax.get("name")
+            
             embed.add_field(
                 name=name,
-                value=f"[View](https://www.inaturalist.org/taxa/{obs_id})",
+                value=f"([{tax.get('preferred_common_name')}](https://www.inaturalist.org/taxa/{tax.get("id")}))",
                 inline=False
             )
+        self.search_results[interaction.user.id] = results
 
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="fetch", description="Get data on a species. If value=number, fetch from search, else fetch from scientific name")
+    async def fetch_data(self, interaction: discord.Interaction, value: str):
+        """
+        Get data on a species/taxa
+        """
+        await interaction.response.defer()
+
+        user_id = interaction.user.id
+        cached = self.search_results.get(user_id)
+
+        if value.isdigit():
+            if not cached:
+                return await interaction.followup.send("No search history found. Use /search <query>")
+
+            try:
+                taxon = cached[int(value) - 1]
+            except IndexError:
+                return await interaction.followup.send("Invalid index.")
+        else:
+            results = self.inat.get_taxons({
+                "q": value,
+                "per_page": 1
+            })
+
+            if not results:
+                return await interaction.followup.send("No taxon found.")
+
+            taxon = results[0]
+
+        taxon_id = taxon["id"]
+
+        embed = discord.Embed(
+            title=taxon.get("preferred_common_name") or taxon["name"],
+            description=f"**Scientific:** {taxon['name']}",
+            color=0x12E5B7
+        )
+
+        embed.add_field(name="Rank", value=taxon.get("rank", "Unknown"))
+        embed.add_field(
+            name="Link",
+            value=f"https://www.inaturalist.org/taxa/{taxon_id}",
+            inline=False
+        )
+
+        await interaction.followup.send(embed=embed)
     
 
     @commands.command(name="randomspecies")
