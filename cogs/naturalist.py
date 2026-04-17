@@ -92,6 +92,7 @@ class Naturalist(commands.Cog):
 
         embed = discord.Embed(
             title=f"🔎 Results for {search}",
+            description="",
             color=0x2ECC71
         )
         embed.set_author(
