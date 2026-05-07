@@ -30,6 +30,26 @@ class DataManager:
         )
         """)
 
+        await self.db.execute("""
+        CREATE TABLE IF NOT EXISTS game_sessions (
+            session_id TEXT PRIMARY KEY,
+            host_id TEXT,
+            multi INTEGER,
+            current_index INTEGER,
+            type TEXT,
+            taxon_id INTEGER
+        )
+        """)
+        await self.db.execute("""
+        CREATE TABLE IF NOT EXISTS game_players (
+            session_id TEXT,
+            user_id INTEGER,
+            score INTEGER DEFAULT 0,
+            PRIMARY KEY (session_id, user_id)
+        )
+        """)
+
+
         await self.db.commit()
 
     async def add_score(self, guild_id, user_id, score):

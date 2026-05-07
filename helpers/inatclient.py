@@ -18,7 +18,6 @@ class INatClient:
         'RE': 'Regionally Extinct',
         'NA': 'Not Applicable'
     }
-    RARE_CODES = ['EX','EW','CR','EN','VU','NT','S1','S2','N1','N2']
 
     def __init__(self):
         pass
@@ -28,22 +27,44 @@ class INatClient:
 
         r = requests.get(url, params=params)
         r.raise_for_status()
+
         return r.json()['results']
     
+    def get_observation_of_taxa(self, taxa_id):
+        return random.choice(self.get_observations({
+            "taxon_id": taxa_id,
+            "photos": True
+        }))
+    
     def get_taxon_by_id(self, id):
-        url = f'https://api.inaturalist.org/v1/taxa/{id}'
+        url = self.BASE_URL + f"/taxa/{id}"
         params = {
             'fields': 'all'
         }
         r = requests.get(url, params=params)
         r.raise_for_status()
         return r.json()['results'][0]
+
+    def get_places(self, params):
+        url = self.BASE_URL + "/places/autocomplete"
+        r = requests.get(url, params=params)
+        r.raise_for_status()
+        return r.json()['results']
+
+    def get_place(self, location_name):
+        places = self.get_places({'q': location_name})
+        if places:
+            return places[0]['id']  
+        return None
     
-    def get_taxons(self, params):
-        url = self.BASE_URL + '/taxa'
+    def get_taxons(self, params, ids=None):
+        print('IDS: ' + str(ids))
+        if ids:
+            url = self.BASE_URL + '/taxa/' + str(ids)
+        else:
+            url = self.BASE_URL + '/taxa'
         r = requests.get(url, params=params)
         return r.json()['results']
-    
 
     def filter_rare(self, observations):
         rare_obs = []
@@ -67,7 +88,7 @@ class INatClient:
 
         return rare_obs
 
-# inat = INatClient()
+   
 
 # lat, lng = 39.1928853, -76.7241371
 # radius = 300

@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import app_commands
 import discord
 
 class General(commands.Cog):
@@ -27,11 +28,11 @@ class General(commands.Cog):
         else:
             await ctx.send(f"Latitude: {data[0]}, Longitude: {data[1]}")
 
-
-    @commands.command()
-    async def lb(self, ctx):
-        if ctx.guild is None:
-            score = await self.bot.db.get_score('DM', ctx.author.id)
+    @app_commands.command(name="lb", description="Display server leaderboard for IDs")
+    async def lb(self,  interaction: discord.Interaction):
+        await interaction.response.defer()
+        if interaction.guild is None:
+            score = await self.bot.db.get_score('DM', interaction.user.id)
             embed = discord.Embed(
                 title="No leaderboard available",
                 description=f"Your score: {score[0]}",
@@ -44,20 +45,38 @@ class General(commands.Cog):
                 color=0xE5AC12,
             )
             embed.set_author(
-                name=f"{ctx.author}",
-                icon_url=ctx.author.display_avatar.url
+                name=f"{interaction.user}",
+                icon_url=interaction.user.display_avatar.url
             )
 
-            leaderboard = await self.bot.db.get_leaderboard(ctx.guild.id)
+            leaderboard = await self.bot.db.get_leaderboard(interaction.guild.id)
             medals = ["🥇", "🥈", "🥉"]
             for i, (user_id, score) in enumerate(leaderboard, start=1):
-                member = ctx.guild.get_member(int(user_id))
-                username = member.display_name if member else f"User {user_id}"
+                try:
+                    member = await interaction.guild.fetch_member(int(user_id))
+                    username = member.display_name
+                except:
+                    username = f"User {user_id}"
 
                 medal = medals[i - 1] if i <= 3 else f"{i}."
 
                 embed.description += f"{medal} {username} - {score} pts\n"
-        await ctx.send(embed=embed)
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="stats", description="Display stats for a user")
+    async def stats(self,  interaction: discord.Interaction, user: discord.Member = None):
+        await interaction.response.defer()
+        user = user or interaction.user
+        guild_id = str(interaction.guild.id) if interaction.guild else 'DM'
+
+        score = await self.bot.db.get_score(guild_id, user.id)
+        score = score if score else [0]  
+        embed = discord.Embed(
+            title=f"Stats for {user.display_name}",
+            color=0x3498DB
+        )
+        embed.add_field(name="Score", value=score[0], inline=True)
+        await interaction.followup.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(General(bot))

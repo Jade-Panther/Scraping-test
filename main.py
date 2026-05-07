@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from discord.ext import commands
 import random
-from helpers.naturalist import *
+from helpers.inatclient import *
 from cogs.game import *
 from database.manager import *
 
@@ -24,6 +24,8 @@ class DiscordBot(commands.Bot):
         )
         self.db = DataManager(f"{os.path.realpath(os.path.dirname(__file__))}/database/data.db")
         self.inat = INatClient()
+        print('HELLO')
+        print(os.path.exists(self.db.db_path))
 
     async def setup_hook(self):
         """
